@@ -1,8 +1,9 @@
+#pragma once
 #include <sstream>
 #include <string>
 #include <vector>
 #include <iostream>
-#include "token.cpp"
+#include "../token.cpp"
 
 class lexer {
     std::string content;
@@ -79,7 +80,7 @@ class lexer {
 
                     // Check if it is a known keyword
                     if (string == "return") {
-                        add_token(token(token_type::return_token, string));
+                        add_token(token(token_type::keyword_return, string));
                     }
                     // not a keyword
                     else {

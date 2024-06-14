@@ -7,9 +7,9 @@
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
-                "${fileDirname}/feather.cpp",
+                "${workspaceFolder}/src/main.cpp",
                 "-o",
-                "${fileDirname}/../build/feather"
+                "${workspaceFolder}/build/feather"
             ],
             "options": {
                 "cwd": "${fileDirname}"

@@ -1,9 +1,11 @@
+#pragma once
 #include <optional>
 #include <variant>
 #include <string>
 #include "token_type.cpp"
 
-using token_value = std::optional<std::variant<int, std::string>>;
+using lit_value = std::variant<int, std::string>;
+using token_value = std::optional<lit_value>;
 
 class token {
     public:

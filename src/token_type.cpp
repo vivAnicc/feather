@@ -1,15 +1,19 @@
+#pragma once
+
 const std::string token_type_name[] = {
-    "return_token",
+    "keyword_return",
     "ident",
     "num_lit",
     "semi",
+    "ERROR",
 };
 
 enum class token_type : int {
-    return_token = 0,
+    keyword_return = 0,
     ident,
     num_lit,
     semi,
+    error,
 };
 
 const std::string token_to_string(const token_type& type) {
