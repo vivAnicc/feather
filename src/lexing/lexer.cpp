@@ -68,19 +68,34 @@ class lexer {
                 case ')':
                     add_token(token(token_type::paren_close, std::string{ next() }));
                     continue;
+                case '+':
+                    add_token(token(token_type::plus, std::string{ next() }));
+                    continue;
+                case '-':
+                    add_token(token(token_type::dash, std::string{ next() }));
+                    continue;
+                case '*':
+                    add_token(token(token_type::star, std::string{ next() }));
+                    continue;
+                case '/':
+                    add_token(token(token_type::fslash, std::string{ next() }));
+                    continue;
+                case '%':
+                    add_token(token(token_type::mod, std::string{ next() }));
+                    continue;
                 
                 default:
                     break;
                 }
 
                 // token is a word (keyword or identifier)
-                if (std::isalnum(current())) {
+                if (std::isalnum(current()) || current() == '_') {
                     std::stringstream stream;
 
                     do {
                         stream << next();
                     }
-                    while (std::isalnum(current()));
+                    while (std::isalnum(current()) || current() == '_');
 
                     std::string string = stream.str();
 
@@ -88,8 +103,8 @@ class lexer {
                     if (string == "return") {
                         add_token(token(token_type::kw_return, string));
                     }
-                    else if (string == "print") {
-                        add_token(token(token_type::kw_print, string));
+                    else if (string == "print_num") {
+                        add_token(token(token_type::kw_print_num, string));
                     }
                     // not a keyword
                     else {

@@ -44,20 +44,20 @@ int main(int argc, char* argv[]) {
     parser parser(tokens);
     auto statements = parser.parse();
 
-    for (const auto& stmt : statements) {
-        print_node(stmt);
-    }
+    // for (const auto& stmt : statements) {
+    //     print_node(stmt);
+    // }
 
-    std::cout << std::endl;
+    // std::cout << std::endl;
 
-    for (const auto& stmt : statements) {
-        auto tokens = stmt->get_tokens();
+    // for (const auto& stmt : statements) {
+    //     auto tokens = stmt->get_tokens();
 
-        for (const auto& token : tokens) {
-            std::cout << token_to_string(token.type) << " - ";
-            std::cout << token.text << std::endl;
-        }
-    }
+    //     for (const auto& token : tokens) {
+    //         std::cout << token_to_string(token.type) << " - ";
+    //         std::cout << token.text << std::endl;
+    //     }
+    // }
 
     std::cout << std::endl;
 
@@ -69,7 +69,7 @@ int main(int argc, char* argv[]) {
     stream << "_start:" << std::endl;
     stream << emitted << std::endl;
 
-    std::cout << stream.str();
+    // std::cout << stream.str();
 
     {
         std::fstream file("./out.asm", std::ios::out);
@@ -78,8 +78,6 @@ int main(int argc, char* argv[]) {
 
     system("nasm -felf64 out.asm");
     system("ld -o out out.o");
-
-    std::cout << sizeof("Hello, World") << std::endl;
 
     return 0;
 }

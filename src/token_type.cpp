@@ -3,23 +3,33 @@
 
 const std::string token_type_name[] = {
     "kw_return",
-    "kw_print",
+    "kw_print_num",
     "ident",
     "num_lit",
     "semi",
     "paren_open",
     "paren_close",
+    "plus",
+    "dash",
+    "star",
+    "fslash",
+    "mod",
     "ERROR",
 };
 
 enum class token_type : int {
     kw_return = 0,
-    kw_print,
+    kw_print_num,
     ident,
     num_lit,
     semi,
     paren_open,
     paren_close,
+    plus,
+    dash,
+    star,
+    fslash,
+    mod,
     error,
 };
 

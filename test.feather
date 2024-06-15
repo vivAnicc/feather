@@ -1,2 +1,2 @@
-print (9);
+print_num ((24 + 3) % 2);
 return 23;
