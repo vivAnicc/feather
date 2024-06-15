@@ -16,7 +16,7 @@ class term_literal : public term {
             return {};
         }
 
-        virtual std::string emit_term() {
+        virtual std::stringstream emit_term() {
             std::stringstream stream;
 
             stream << "mov rax, ";
@@ -32,9 +32,9 @@ class term_literal : public term {
 
             stream << std::endl;
 
-            return stream.str();
+            return stream;
         }
-    private:
+    protected:
         virtual std::vector<token> list_tokens() {
             return { lit };
         }

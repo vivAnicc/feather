@@ -5,13 +5,13 @@
 #include "expression.cpp"
 #include <sstream>
 
-class statement_return : public statement {
+class stmt_return : public statement {
     public:
         token return_token;
         std::optional<expression*> expr;
         token semi;
 
-        statement_return(token return_token, std::optional<expression*> expr, token semi) :
+        stmt_return(token return_token, std::optional<expression*> expr, token semi) :
             return_token (return_token), expr (expr), semi (semi) {}
 
         virtual std::vector<node*> get_children() {
@@ -20,17 +20,17 @@ class statement_return : public statement {
             return {};
         }
 
-        virtual std::string emit_statement() {
+        virtual std::stringstream emit_statement() {
             std::stringstream stream;
 
-            stream << expr.value()->emit_expression();
+            stream = expr.value()->emit_expression();
             stream << "mov rdi, rax" << std::endl;
             stream << "mov rax, 60" << std::endl;
             stream << "syscall" << std::endl;
 
-            return stream.str();
+            return stream;
         }
-    private:
+    protected:
         virtual std::vector<token> list_tokens() {
             return {
                 return_token,

@@ -3,5 +3,5 @@
 
 class expression : public node {
     public:
-        virtual std::string emit_expression() = 0;
+        virtual std::stringstream emit_expression() = 0;
 };

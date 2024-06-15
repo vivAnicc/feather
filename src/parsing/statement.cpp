@@ -3,5 +3,5 @@
 
 class statement : public node {
     public:
-        virtual std::string emit_statement() = 0; 
+        virtual std::stringstream emit_statement() = 0; 
 };

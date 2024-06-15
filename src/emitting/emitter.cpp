@@ -13,7 +13,7 @@ class emitter {
         std::stringstream stream;
         
         for (const auto& stmt : statements) {
-            stream << stmt->emit_statement();
+            stream << stmt->emit_statement().str();
         }
 
         return stream.str();

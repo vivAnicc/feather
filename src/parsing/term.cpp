@@ -3,8 +3,8 @@
 
 class term : public expression {
     public:
-        virtual std::string emit_term() = 0;
-        virtual std::string emit_expression() {
+        virtual std::stringstream emit_term() = 0;
+        virtual std::stringstream emit_expression() {
             return emit_term();
         }
 };

@@ -3,7 +3,7 @@
 #include <typeinfo>
 
 class node {
-    private:
+    protected:
         virtual std::vector<token> list_tokens() = 0;
     public:
         virtual ~node() {}

@@ -6,7 +6,8 @@
 #include "statement.cpp"
 #include "expression.cpp"
 #include "term.cpp"
-#include "statement_return.cpp"
+#include "stmt_return.cpp"
+#include "stmt_print.cpp"
 #include "term_literal.cpp"
 
 class parser {
@@ -66,8 +67,10 @@ class parser {
 
             switch (current.type)
             {
-            case token_type::keyword_return:
+            case token_type::kw_return:
                 return parse_return_statement();
+            case token_type::kw_print:
+                return parse_print_statement();
             
             default:
                 std::cerr << "Unable to parse statement" << std::endl;
@@ -91,11 +94,21 @@ class parser {
             }
         }
 
-        statement* parse_return_statement() {
-            token return_token = consume(token_type::keyword_return);
+        stmt_return* parse_return_statement() {
+            token return_token = consume(token_type::kw_return);
             auto expr = parse_expression();
             token semi = consume(token_type::semi);
 
-            return new statement_return(return_token, expr, semi);
+            return new stmt_return(return_token, expr, semi);
+        }
+
+        stmt_print* parse_print_statement() {
+            token print_token = consume(token_type::kw_print);
+            token open = consume(token_type::paren_open);
+            auto expr = parse_expression().value();
+            token close = consume(token_type::paren_close);
+            token semi = consume(token_type::semi);
+
+            return new stmt_print(print_token, open, expr, close, semi);
         }
 };

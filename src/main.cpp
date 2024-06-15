@@ -79,5 +79,7 @@ int main(int argc, char* argv[]) {
     system("nasm -felf64 out.asm");
     system("ld -o out out.o");
 
+    std::cout << sizeof("Hello, World") << std::endl;
+
     return 0;
 }

@@ -62,6 +62,12 @@ class lexer {
                 case ';':
                     add_token(token(token_type::semi, std::string{ next() }));
                     continue;
+                case '(':
+                    add_token(token(token_type::paren_open, std::string{ next() }));
+                    continue;
+                case ')':
+                    add_token(token(token_type::paren_close, std::string{ next() }));
+                    continue;
                 
                 default:
                     break;
@@ -80,7 +86,10 @@ class lexer {
 
                     // Check if it is a known keyword
                     if (string == "return") {
-                        add_token(token(token_type::keyword_return, string));
+                        add_token(token(token_type::kw_return, string));
+                    }
+                    else if (string == "print") {
+                        add_token(token(token_type::kw_print, string));
                     }
                     // not a keyword
                     else {
