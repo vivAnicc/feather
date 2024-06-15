@@ -100,8 +100,8 @@ class lexer {
                     std::string string = stream.str();
 
                     // Check if it is a known keyword
-                    if (string == "return") {
-                        add_token(token(token_type::kw_return, string));
+                    if (string == "exit") {
+                        add_token(token(token_type::kw_exit, string));
                     }
                     else if (string == "print_num") {
                         add_token(token(token_type::kw_print_num, string));

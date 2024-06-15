@@ -6,6 +6,7 @@
 #include "lexing/lexer.cpp"
 #include "parsing/parser.cpp"
 #include "emitting/emitter.cpp"
+#include "binding/binder.cpp"
 
 void print_node(node* node) {
     std::cout << typeid(*node).name() << std::endl;
@@ -59,9 +60,15 @@ int main(int argc, char* argv[]) {
     //     }
     // }
 
+    statement* t1 = new stmt_print_num(token(token_type::dash, ""), token(token_type::dash, ""), nullptr, token(token_type::dash, ""), token(token_type::dash, ""));
+    auto t2 = dynamic_cast<stmt_exit*>(t1);
+
     std::cout << std::endl;
 
-    emitter emitter(statements);
+    binder binder(statements);
+    auto bound_statements = binder.bind();
+
+    emitter emitter(bound_statements);
     std::string emitted = emitter.emit();
 
     std::stringstream stream;

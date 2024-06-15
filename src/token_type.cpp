@@ -2,7 +2,7 @@
 #include <string>
 
 const std::string token_type_name[] = {
-    "kw_return",
+    "kw_exit",
     "kw_print_num",
     "ident",
     "num_lit",
@@ -18,7 +18,7 @@ const std::string token_type_name[] = {
 };
 
 enum class token_type : int {
-    kw_return = 0,
+    kw_exit = 0,
     kw_print_num,
     ident,
     num_lit,

@@ -8,3 +8,7 @@ class bound_expression : public bound_node {
         
         bound_expression(type_symbol type) : type (type) {}
 };
+
+bool is_error(const bound_expression* expr) {
+    return expr->type == type_error;
+}

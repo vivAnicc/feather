@@ -2,18 +2,21 @@
 #include <vector>
 #include <sstream>
 #include "../parsing/parser.cpp"
+#include "statement_emitting.cpp"
+#include "emitting_utils.cpp"
 
 class emitter {
-    std::vector<statement*> statements;
+    std::vector<bound_statement*> statements;
 
     public:
-        emitter (std::vector<statement*> statements) : statements (statements) {}
+        emitter (std::vector<bound_statement*> statements) : statements (statements) {}
     
     std::string emit() {
         std::stringstream stream;
         
         for (const auto& stmt : statements) {
-            stream << stmt->emit_statement().str();
+            // stream << stmt->emit_statement().str();
+            stream << emit_statement(stmt).str();
         }
 
         return stream.str();

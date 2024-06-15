@@ -6,8 +6,9 @@
 #include "statement.cpp"
 #include "expression.cpp"
 #include "term.cpp"
-#include "stmt_return.cpp"
+#include "stmt_exit.cpp"
 #include "stmt_print_num.cpp"
+#include "stmt_expression.cpp"
 #include "expr_binary.cpp"
 #include "term_literal.cpp"
 #include "term_paren.cpp"
@@ -57,28 +58,25 @@ class parser {
 
             while (!end_of_file()) {
                 auto stmt = parse_statement();
-                if (stmt.has_value())
-                    result.push_back(stmt.value());
+                result.push_back(stmt);
             }
 
             return result;
         }
     
     private:
-        std::optional<statement*> parse_statement() {
+        statement* parse_statement() {
             token current = peek().value();
 
             switch (current.type)
             {
-            case token_type::kw_return:
+            case token_type::kw_exit:
                 return parse_return_statement();
             case token_type::kw_print_num:
                 return parse_print_statement();
             
             default:
-                std::cerr << "Unable to parse statement" << std::endl;
-                next();
-                return std::nullopt;
+                return parse_expression_statement();
             }
         }
 
@@ -128,14 +126,12 @@ class parser {
             return new term_paren(open, expr, close);
         }
 
-        stmt_return* parse_return_statement() {
-            token return_token = consume(token_type::kw_return);
-            std::optional<expression*> expr = std::nullopt;
-            if (peek().value().type != token_type::paren_close)
-                expr = parse_expression();
+        stmt_exit* parse_return_statement() {
+            token return_token = consume(token_type::kw_exit);
+            auto expr = parse_expression();
             token semi = consume(token_type::semi);
 
-            return new stmt_return(return_token, expr, semi);
+            return new stmt_exit(return_token, expr, semi);
         }
 
         stmt_print_num* parse_print_statement() {
@@ -146,5 +142,11 @@ class parser {
             token semi = consume(token_type::semi);
 
             return new stmt_print_num(print_token, open, expr, close, semi);
+        }
+
+        stmt_expression* parse_expression_statement() {
+            auto expr = parse_expression();
+            token semi = consume(token_type::semi);
+            return new stmt_expression(expr, semi);
         }
 };
