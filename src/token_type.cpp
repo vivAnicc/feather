@@ -3,9 +3,12 @@
 
 const std::string token_type_name[] = {
     "kw_exit",
-    "kw_print_num",
+    "kw_print",
+    "kw_true",
+    "kw_false",
     "ident",
     "num_lit",
+    "char_lit",
     "semi",
     "paren_open",
     "paren_close",
@@ -19,9 +22,12 @@ const std::string token_type_name[] = {
 
 enum class token_type : int {
     kw_exit = 0,
-    kw_print_num,
+    kw_print,
+    kw_true,
+    kw_false,
     ident,
     num_lit,
+    char_lit,
     semi,
     paren_open,
     paren_close,

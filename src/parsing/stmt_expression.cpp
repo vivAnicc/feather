@@ -14,10 +14,6 @@ class stmt_expression : public statement {
         virtual std::vector<node*> get_children() {
             return { expr };
         }
-
-        virtual std::stringstream emit_statement() {
-            return expr->emit_expression();
-        }
     
     protected:
         virtual std::vector<token> list_tokens() {

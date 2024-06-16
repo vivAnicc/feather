@@ -7,7 +7,7 @@
 #include "expression.cpp"
 #include "term.cpp"
 #include "stmt_exit.cpp"
-#include "stmt_print_num.cpp"
+#include "stmt_print.cpp"
 #include "stmt_expression.cpp"
 #include "expr_binary.cpp"
 #include "term_literal.cpp"
@@ -72,7 +72,7 @@ class parser {
             {
             case token_type::kw_exit:
                 return parse_return_statement();
-            case token_type::kw_print_num:
+            case token_type::kw_print:
                 return parse_print_statement();
             
             default:
@@ -109,7 +109,10 @@ class parser {
         std::optional<term*> parse_term() {
             switch (peek().value().type)
             {
+            case token_type::kw_true:
+            case token_type::kw_false:
             case token_type::num_lit:
+            case token_type::char_lit:
                 return new term_literal(next());
             case token_type::paren_open:
                 return parse_term_paren();
@@ -134,14 +137,14 @@ class parser {
             return new stmt_exit(return_token, expr, semi);
         }
 
-        stmt_print_num* parse_print_statement() {
-            token print_token = consume(token_type::kw_print_num);
+        stmt_print* parse_print_statement() {
+            token print_token = consume(token_type::kw_print);
             token open = consume(token_type::paren_open);
             auto expr = parse_expression();
             token close = consume(token_type::paren_close);
             token semi = consume(token_type::semi);
 
-            return new stmt_print_num(print_token, open, expr, close, semi);
+            return new stmt_print(print_token, open, expr, close, semi);
         }
 
         stmt_expression* parse_expression_statement() {

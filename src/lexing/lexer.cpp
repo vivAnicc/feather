@@ -59,6 +59,9 @@ class lexer {
                 // check if it is a recognisable symbol
                 switch (current())
                 {
+                case '\'':
+                    add_token(lex_char());
+                    continue;
                 case ';':
                     add_token(token(token_type::semi, std::string{ next() }));
                     continue;
@@ -103,8 +106,14 @@ class lexer {
                     if (string == "exit") {
                         add_token(token(token_type::kw_exit, string));
                     }
-                    else if (string == "print_num") {
-                        add_token(token(token_type::kw_print_num, string));
+                    else if (string == "print") {
+                        add_token(token(token_type::kw_print, string));
+                    }
+                    else if (string == "true") {
+                        add_token(token(token_type::kw_true, string, true));
+                    }
+                    else if (string == "false") {
+                        add_token(token(token_type::kw_false, string, false));
                     }
                     // not a keyword
                     else {
@@ -119,5 +128,16 @@ class lexer {
             }
 
             return tokens;
+        }
+
+    private:
+        token lex_char() {
+            std::stringstream text;
+
+            text << next();
+            auto c = next();
+            text << c << next();
+
+            return token(token_type::char_lit, text.str(), c);
         }
 };

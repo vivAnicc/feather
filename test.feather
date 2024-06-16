@@ -1,2 +1,5 @@
-print_num ((24 + 3));
+print ((24 + 3));
+print (true);
+print (false);
+print ('a');
 exit 0;

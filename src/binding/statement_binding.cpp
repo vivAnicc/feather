@@ -16,7 +16,7 @@ bound_statement* bind_statement(T* t) {
     if (auto stmt = dynamic_cast<stmt_exit*>(t)) {
         return bind_statement(stmt);
     }
-    else if (auto stmt = dynamic_cast<stmt_print_num*>(t)) {
+    else if (auto stmt = dynamic_cast<stmt_print*>(t)) {
         return bind_statement(stmt);
     }
     else if (auto stmt = dynamic_cast<stmt_exit*>(t)) {
@@ -35,9 +35,14 @@ bound_statement* bind_statement(stmt_exit* stmt) {
 }
 
 template<>
-bound_statement* bind_statement(stmt_print_num* stmt) {
+bound_statement* bind_statement(stmt_print* stmt) {
     auto expr = bind_expression(stmt->expr);
-    auto call_expr = new bound_expr_call(function_print_num, { expr });
+    function_symbol fun = function_print_num;
+    if (expr->type == type_bool)
+        fun = function_print_bool;
+    else if (expr->type == type_char)
+        fun = function_print_char;
+    auto call_expr = new bound_expr_call(fun, { expr });
     return new bound_stmt_expr(call_expr);
 }
 

@@ -16,10 +16,6 @@ class term_paren : public term {
             return { expr };
         }
 
-        virtual std::stringstream emit_term() {
-            return expr->emit_expression();
-        }
-
     protected:
         virtual std::vector<token> list_tokens() {
             return {

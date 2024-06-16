@@ -4,7 +4,7 @@
 #include <string>
 #include "token_type.cpp"
 
-using lit_value = std::variant<int, std::string>;
+using lit_value = std::variant<int, std::string, char, bool>;
 using token_value = std::optional<lit_value>;
 
 class token {

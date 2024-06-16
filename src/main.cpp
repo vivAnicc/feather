@@ -16,6 +16,14 @@ void print_node(node* node) {
     }
 }
 
+void print_node(bound_node* node) {
+    std::cout << typeid(*node).name() << std::endl;
+
+    for (const auto& child : node->get_children()) {
+        print_node(child);
+    }
+}
+
 int main(int argc, char* argv[]) {
     if (argc < 2) {
         std::cerr << "Incorrect usage. Correct usage:" << std::endl;
@@ -60,13 +68,14 @@ int main(int argc, char* argv[]) {
     //     }
     // }
 
-    statement* t1 = new stmt_print_num(token(token_type::dash, ""), token(token_type::dash, ""), nullptr, token(token_type::dash, ""), token(token_type::dash, ""));
-    auto t2 = dynamic_cast<stmt_exit*>(t1);
-
-    std::cout << std::endl;
+    // std::cout << std::endl;
 
     binder binder(statements);
     auto bound_statements = binder.bind();
+
+    for (const auto& stmt : bound_statements) {
+        print_node(stmt);
+    }
 
     emitter emitter(bound_statements);
     std::string emitted = emitter.emit();
@@ -76,7 +85,7 @@ int main(int argc, char* argv[]) {
     stream << "_start:" << std::endl;
     stream << emitted << std::endl;
 
-    // std::cout << stream.str();
+    std::cout << stream.str();
 
     {
         std::fstream file("./out.asm", std::ios::out);

@@ -18,16 +18,6 @@ class stmt_exit : public statement {
             return { expr };
         }
 
-        virtual std::stringstream emit_statement() {
-            std::stringstream stream;
-
-            stream = expr->emit_expression();
-            stream << "mov rdi, rax" << std::endl;
-            stream << "mov rax, 60" << std::endl;
-            stream << "syscall" << std::endl;
-
-            return stream;
-        }
     protected:
         virtual std::vector<token> list_tokens() {
             return {
