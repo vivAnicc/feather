@@ -22,6 +22,10 @@ class lexer {
         return content[idx++];
     }
 
+    char peek() {
+        return content[idx + 1];
+    }
+
     public:
         lexer (std::string& content) : content(content) {}
 
@@ -86,6 +90,38 @@ class lexer {
                 case '%':
                     add_token(token(token_type::mod, std::string{ next() }));
                     continue;
+                case '=':
+                    if (peek() == '=') {
+                        add_token(token(token_type::ee, std::string { next() + "" + next() }));
+                        continue;
+                    }
+                case '>':
+                    if (peek() == '=')
+                        add_token(token(token_type::ge, std::string { next() + "" + next() }));
+                    else
+                        add_token(token(token_type::gt, std::string { next() }));
+                    continue;
+                case '<':
+                    if (peek() == '=')
+                        add_token(token(token_type::le, std::string { next() + "" + next() }));
+                    else
+                        add_token(token(token_type::lt, std::string { next() }));
+                    continue;
+                case '!':
+                    if (peek() == '=') {
+                        add_token(token(token_type::ne, std::string { next() + "" + next() }));
+                        continue;
+                    }
+                case '&':
+                    if (peek() == '&') {
+                        add_token(token(token_type::_and, std::string { next() + "" + next() }));
+                        continue;
+                    }
+                case '|':
+                    if (peek() == '|') {
+                        add_token(token(token_type::_or, std::string { next() + "" + next() }));
+                        continue;
+                    }
                 
                 default:
                     break;

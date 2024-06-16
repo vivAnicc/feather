@@ -6,6 +6,7 @@
 #include "../parsing/binary_operator.cpp"
 #include "../symbols/type_symbol.cpp"
 #include "../emitting/emitting_utils.cpp"
+#include "../label.cpp"
 
 class bound_op_binary {
     public:
@@ -25,17 +26,98 @@ class bound_op_binary {
         
         // left is in RCX, right is in RAX
         void emit(std::stringstream* s) {
-            if (left == type_int && right == type_int && result == type_int)
+            if (left == type_int && right == type_int)
                 emit_ints(s);
+            else if (left == type_bool && right == type_bool)
+                emit_bools(s);
+            else if (left == type_char && right == type_char)
+                emit_chars(s);
         }
 
     private:
-        void emit_ints(std::stringstream* s) {
-            int size = result.size;
+        void emit_chars(std::stringstream* s) {
+            int op_size = left.size;
 
-            auto rax = get_register(RAX, size);
-            auto rcx = get_register(RCX, size);
-            auto rdx = get_register(RDX, size);
+            auto rax = get_register(RAX, op_size);
+            auto rcx = get_register(RCX, op_size);
+
+            auto label_true = get_label("condition_true");
+            auto label_end = get_label("condition_end");
+
+            switch (op)
+            {
+            case binary_operator::equals:
+                emit_line(s, "cmp " + rcx + ", " + rax);
+                emit_line(s, "je " + label_true);
+                emit_line(s, "mov " + rax + ", 0");
+                emit_line(s, "jmp " + label_end);
+                emit_line(s, label_true + ":");
+                emit_line(s, "mov " + rax + ", 1");
+                emit_line(s, label_end + ":");
+                break;
+            case binary_operator::not_equals:
+                emit_line(s, "cmp " + rcx + ", " + rax);
+                emit_line(s, "jne " + label_true);
+                emit_line(s, "mov " + rax + ", 0");
+                emit_line(s, "jmp " + label_end);
+                emit_line(s, label_true + ":");
+                emit_line(s, "mov " + rax + ", 1");
+                emit_line(s, label_end + ":");
+                break;
+            
+            default:
+                break;
+            }
+        }
+        void emit_bools(std::stringstream* s) {
+            int op_size = left.size;
+
+            auto rax = get_register(RAX, op_size);
+            auto rcx = get_register(RCX, op_size);
+
+            auto label_true = get_label("condition_true");
+            auto label_end = get_label("condition_end");
+
+            switch (op)
+            {
+            case binary_operator::equals:
+                emit_line(s, "cmp " + rcx + ", " + rax);
+                emit_line(s, "je " + label_true);
+                emit_line(s, "mov " + rax + ", 0");
+                emit_line(s, "jmp " + label_end);
+                emit_line(s, label_true + ":");
+                emit_line(s, "mov " + rax + ", 1");
+                emit_line(s, label_end + ":");
+                break;
+            case binary_operator::not_equals:
+                emit_line(s, "cmp " + rcx + ", " + rax);
+                emit_line(s, "jne " + label_true);
+                emit_line(s, "mov " + rax + ", 0");
+                emit_line(s, "jmp " + label_end);
+                emit_line(s, label_true + ":");
+                emit_line(s, "mov " + rax + ", 1");
+                emit_line(s, label_end + ":");
+                break;
+            case binary_operator::logic_or:
+                emit_line(s, "or " + rax + ", " + rcx);
+                break;
+            case binary_operator::logic_and:
+                emit_line(s, "and " + rax + ", " + rcx);
+                break;
+            
+            default:
+                break;
+            }
+        }
+        void emit_ints(std::stringstream* s) {
+            int op_size = left.size;
+
+            auto rax = get_register(RAX, op_size);
+            auto rcx = get_register(RCX, op_size);
+            auto rdx = get_register(RDX, op_size);
+
+            auto label_true = get_label("condition_true");
+            auto label_end = get_label("condition_end");
 
             switch (op)
             {
@@ -59,6 +141,60 @@ class bound_op_binary {
                 emit_line(s, "xchg " + rcx + ", " + rax);
                 emit_line(s, "div " + rcx);
                 emit_line(s, "mov " + rax + ", " + rdx);
+                break;
+            case binary_operator::equals:
+                emit_line(s, "cmp " + rcx + ", " + rax);
+                emit_line(s, "je " + label_true);
+                emit_line(s, "mov " + rax + ", 0");
+                emit_line(s, "jmp " + label_end);
+                emit_line(s, label_true + ":");
+                emit_line(s, "mov " + rax + ", 1");
+                emit_line(s, label_end + ":");
+                break;
+            case binary_operator::not_equals:
+                emit_line(s, "cmp " + rcx + ", " + rax);
+                emit_line(s, "jne " + label_true);
+                emit_line(s, "mov " + rax + ", 0");
+                emit_line(s, "jmp " + label_end);
+                emit_line(s, label_true + ":");
+                emit_line(s, "mov " + rax + ", 1");
+                emit_line(s, label_end + ":");
+                break;
+            case binary_operator::greater_than:
+                emit_line(s, "cmp " + rcx + ", " + rax);
+                emit_line(s, "jg " + label_true);
+                emit_line(s, "mov " + rax + ", 0");
+                emit_line(s, "jmp " + label_end);
+                emit_line(s, label_true + ":");
+                emit_line(s, "mov " + rax + ", 1");
+                emit_line(s, label_end + ":");
+                break;
+            case binary_operator::greater_equals:
+                emit_line(s, "cmp " + rcx + ", " + rax);
+                emit_line(s, "jge " + label_true);
+                emit_line(s, "mov " + rax + ", 0");
+                emit_line(s, "jmp " + label_end);
+                emit_line(s, label_true + ":");
+                emit_line(s, "mov " + rax + ", 1");
+                emit_line(s, label_end + ":");
+                break;
+            case binary_operator::less_than:
+                emit_line(s, "cmp " + rcx + ", " + rax);
+                emit_line(s, "jl " + label_true);
+                emit_line(s, "mov " + rax + ", 0");
+                emit_line(s, "jmp " + label_end);
+                emit_line(s, label_true + ":");
+                emit_line(s, "mov " + rax + ", 1");
+                emit_line(s, label_end + ":");
+                break;
+            case binary_operator::less_equals:
+                emit_line(s, "cmp " + rcx + ", " + rax);
+                emit_line(s, "jle " + label_true);
+                emit_line(s, "mov " + rax + ", 0");
+                emit_line(s, "jmp " + label_end);
+                emit_line(s, label_true + ":");
+                emit_line(s, "mov " + rax + ", 1");
+                emit_line(s, label_end + ":");
                 break;
             
             default:
@@ -97,6 +233,58 @@ auto valid_binary_operator_list = {
         binary_operator::mod,
         {
             bound_op_binary(binary_operator::mod, type_int),
+        }
+    ),
+    std::make_pair<binary_operator, std::vector<bound_op_binary>> (
+        binary_operator::logic_and,
+        {
+            bound_op_binary(binary_operator::logic_and, type_bool),
+        }
+    ),
+    std::make_pair<binary_operator, std::vector<bound_op_binary>> (
+        binary_operator::logic_or,
+        {
+            bound_op_binary(binary_operator::logic_or, type_bool),
+        }
+    ),
+    std::make_pair<binary_operator, std::vector<bound_op_binary>> (
+        binary_operator::equals,
+        {
+            bound_op_binary(binary_operator::equals, type_bool),
+            bound_op_binary(binary_operator::equals, type_int, type_bool),
+            bound_op_binary(binary_operator::equals, type_char, type_bool),
+        }
+    ),
+    std::make_pair<binary_operator, std::vector<bound_op_binary>> (
+        binary_operator::not_equals,
+        {
+            bound_op_binary(binary_operator::not_equals, type_bool),
+            bound_op_binary(binary_operator::not_equals, type_int, type_bool),
+            bound_op_binary(binary_operator::not_equals, type_char, type_bool),
+        }
+    ),
+    std::make_pair<binary_operator, std::vector<bound_op_binary>> (
+        binary_operator::greater_than,
+        {
+            bound_op_binary(binary_operator::greater_than, type_int, type_bool),
+        }
+    ),
+    std::make_pair<binary_operator, std::vector<bound_op_binary>> (
+        binary_operator::greater_equals,
+        {
+            bound_op_binary(binary_operator::greater_equals, type_int, type_bool),
+        }
+    ),
+    std::make_pair<binary_operator, std::vector<bound_op_binary>> (
+        binary_operator::less_than,
+        {
+            bound_op_binary(binary_operator::less_than, type_int, type_bool),
+        }
+    ),
+    std::make_pair<binary_operator, std::vector<bound_op_binary>> (
+        binary_operator::less_equals,
+        {
+            bound_op_binary(binary_operator::less_equals, type_int, type_bool),
         }
     ),
 };

@@ -6,9 +6,11 @@ const std::string token_type_name[] = {
     "kw_print",
     "kw_true",
     "kw_false",
+
     "ident",
     "num_lit",
     "char_lit",
+
     "semi",
     "paren_open",
     "paren_close",
@@ -17,6 +19,16 @@ const std::string token_type_name[] = {
     "star",
     "fslash",
     "mod",
+    
+    "ee",
+    "ne",
+    "gt",
+    "ge",
+    "lt",
+    "le",
+    "or",
+    "and",
+
     "ERROR",
 };
 
@@ -25,9 +37,11 @@ enum class token_type : int {
     kw_print,
     kw_true,
     kw_false,
+
     ident,
     num_lit,
     char_lit,
+
     semi,
     paren_open,
     paren_close,
@@ -36,6 +50,16 @@ enum class token_type : int {
     star,
     fslash,
     mod,
+
+    ee,
+    ne,
+    gt,
+    ge,
+    lt,
+    le,
+    _or,
+    _and,
+
     error,
 };
 

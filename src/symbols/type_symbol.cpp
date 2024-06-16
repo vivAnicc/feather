@@ -12,9 +12,9 @@ class type_symbol : public symbol {
 };
 
 type_symbol type_int = type_symbol("int", 8);
-type_symbol type_string = type_symbol("string", 1, true);
-type_symbol type_char = type_symbol("char", 1);
-type_symbol type_bool = type_symbol("bool", 1);
+type_symbol type_char = type_symbol("char", 2);
+type_symbol type_bool = type_symbol("bool", 2);
+type_symbol type_string = type_symbol("string", type_char.size, true);
 type_symbol type_error = type_symbol("?", 0);
 type_symbol type_void = type_symbol("void", 0, true);
 

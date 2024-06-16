@@ -73,9 +73,9 @@ int main(int argc, char* argv[]) {
     binder binder(statements);
     auto bound_statements = binder.bind();
 
-    for (const auto& stmt : bound_statements) {
-        print_node(stmt);
-    }
+    // for (const auto& stmt : bound_statements) {
+    //     print_node(stmt);
+    // }
 
     emitter emitter(bound_statements);
     std::string emitted = emitter.emit();
@@ -85,7 +85,7 @@ int main(int argc, char* argv[]) {
     stream << "_start:" << std::endl;
     stream << emitted << std::endl;
 
-    std::cout << stream.str();
+    // std::cout << stream.str();
 
     {
         std::fstream file("./out.asm", std::ios::out);
