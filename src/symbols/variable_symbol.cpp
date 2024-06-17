@@ -4,8 +4,9 @@
 
 class variable_symbol : public symbol {
     public:
-        type_symbol type;
+        type_symbol* type;
+        int offset;
 
-        variable_symbol(std::string name, type_symbol type)
-            : symbol (name), type (type) {}
+        variable_symbol(std::string name, type_symbol* type, int offset)
+            : symbol (name), type (type), offset (offset) {}
 };

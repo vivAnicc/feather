@@ -22,6 +22,10 @@ void emit_line(std::stringstream* stream, std::string line) {
 #define R14 14
 #define R15 15
 
+#define STACK_REGISTER RSP
+#define STACK_POINTER std::string("rsp")
+#define STACK_COUNTER std::string("rbp")
+
 std::string get_register(int num, int size) {
     switch (num)
     {
@@ -236,4 +240,40 @@ std::string get_register(int num, int size) {
     }
 
     return "INVALID";
+}
+
+std::string get_size(int size) {
+    switch (size)
+    {
+    case 8:
+        return "qword";
+    case 4:
+        return "dword";
+    case 2:
+        return "word";
+    case 1:
+        return "byte";
+    
+    default:
+        return "ERROR!";
+    }
+}
+
+void clear_register(std::stringstream* s, int reg, int size) {
+    std::string r = get_register(reg, 8);
+
+    switch (size)
+    {
+    case 8:
+        break;
+    case 4:
+        emit_line(s, "and " + r + ", " + "-1");
+        break;
+    case 2:
+        emit_line(s, "and " + r + ", " + "0xFFFF");
+        break;
+    
+    default:
+        break;
+    }
 }

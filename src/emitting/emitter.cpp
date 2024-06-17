@@ -13,6 +13,9 @@ class emitter {
     
     std::string emit() {
         std::stringstream stream;
+
+        stream << "global _start" << std::endl;
+        stream << "_start:" << std::endl;
         
         for (const auto& stmt : statements) {
             // stream << stmt->emit_statement().str();

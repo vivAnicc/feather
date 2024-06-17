@@ -1,4 +1,5 @@
 #pragma once
+#include <optional>
 #include "../parsing/parser.cpp"
 #include "bound_statement.cpp"
 #include "statement_binding.cpp"
@@ -12,11 +13,31 @@ class binder {
         std::vector<bound_statement*> bind() {
             std::vector<bound_statement*> result;
 
+            auto scope = current_scope;
+            scope_enter();
+            current_scope->var_offset += 8;
+
             for (const auto& stmt : statements) {
                 auto res = bind_statement(stmt);
                 result.push_back(res);
             }
 
-            return result;
+            scope_leave();
+            auto block = new bound_stmt_block(result, scope);
+
+            return { block };
         }
 };
+
+std::optional<type_symbol*> string_to_type(const std::string& name) {
+    if (name == "int")
+        return &type_int;
+    else if (name == "bool")
+        return &type_bool;
+    else if (name == "char")
+        return &type_char;
+    else if (name == "void")
+        return &type_void;
+    
+    return std::nullopt;
+}

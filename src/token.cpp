@@ -3,9 +3,8 @@
 #include <variant>
 #include <string>
 #include "token_type.cpp"
-
-using lit_value = std::variant<int, std::string, char, bool>;
-using token_value = std::optional<lit_value>;
+#include "token_types.cpp"
+#include "symbols/type_symbol.cpp"
 
 class token {
     public:

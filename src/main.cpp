@@ -80,16 +80,11 @@ int main(int argc, char* argv[]) {
     emitter emitter(bound_statements);
     std::string emitted = emitter.emit();
 
-    std::stringstream stream;
-    stream << "global _start" << std::endl;
-    stream << "_start:" << std::endl;
-    stream << emitted << std::endl;
-
     // std::cout << stream.str();
 
     {
         std::fstream file("./out.asm", std::ios::out);
-        file << stream.str();
+        file << emitted;
     }
 
     system("nasm -felf64 out.asm");

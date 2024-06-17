@@ -17,6 +17,12 @@ std::stringstream emit_expression(T* t) {
     else if (auto expr = dynamic_cast<bound_expr_error*>(t)) {
         return emit_expression(expr);
     }
+    else if (auto expr = dynamic_cast<bound_expr_type*>(t)) {
+        return emit_expression(expr);
+    }
+    else if (auto expr = dynamic_cast<bound_expr_var*>(t)) {
+        return emit_expression(expr);
+    }
     else {
         std::cerr << "Bound expression not recognized!" << std::endl;
         return std::stringstream();
@@ -27,19 +33,19 @@ template<>
 std::stringstream emit_expression(bound_expr_term* expr) {
     std::stringstream s;
 
-    auto rax = get_register(RAX, expr->type.size);
+    auto rax = get_register(RAX, expr->type->size);
 
-    if (expr->type == type_int) {
+    if (expr->type == &type_int) {
         emit_line(&s, "mov " + rax + ", " + std::to_string(std::get<int>(expr->value)));
     }
-    else if (expr->type == type_bool) {
+    else if (expr->type == &type_bool) {
         bool val = std::get<bool>(expr->value);
         if (val)
             emit_line(&s, "mov " + rax + ", 1");
         else
             emit_line(&s, "mov " + rax + ", 0");
     }
-    else if (expr->type == type_char) {
+    else if (expr->type == &type_char) {
         int ascii = int(std::get<char>(expr->value));
         emit_line(&s, "mov " + rax + ", " + std::to_string(ascii));
     }
@@ -52,9 +58,9 @@ std::stringstream emit_expression(bound_expr_binary* expr) {
     std::stringstream s;
 
     s = emit_expression(expr->left);
-    emit_line(&s, "push " + get_register(RAX, expr->left->type.size));
+    emit_line(&s, "push rax");
     s << emit_expression(expr->right).str();
-    emit_line(&s, "pop " + get_register(RCX, expr->right->type.size));
+    emit_line(&s, "pop rcx");
     expr->op.emit(&s);
 
     return s;
@@ -62,10 +68,10 @@ std::stringstream emit_expression(bound_expr_binary* expr) {
 
 template<>
 std::stringstream emit_expression(bound_expr_call* expr) {
-    if (expr->function == function_print_num) {
+    if (expr->function == &function_print_num) {
         std::stringstream s;
 
-        int size = expr->params[0]->type.size;
+        int size = expr->params[0]->type->size;
         auto r9 = get_register(R9, size);
         auto r10 = get_register(R10, size);
         auto rdx = get_register(RDX, size);
@@ -74,6 +80,9 @@ std::stringstream emit_expression(bound_expr_call* expr) {
         auto label = get_label("print_loop");
 
         s = emit_expression(expr->params[0]);
+
+        emit_line(&s, "; print start");
+
         emit_line(&s, "push 10");
         emit_line(&s, "mov " + r9 + ", 8");
         emit_line(&s, "mov " + r10 + ", 10");
@@ -81,8 +90,9 @@ std::stringstream emit_expression(bound_expr_call* expr) {
         emit_line(&s, "xor " + rdx + ", " + rdx);
         emit_line(&s, "div " + r10);
         emit_line(&s, "add " + rdx + ", 48");
-        emit_line(&s, "push " + rdx);
-        emit_line(&s, "add " + r9 + ", " + std::to_string(size));
+        clear_register(&s, RDX, size);
+        emit_line(&s, "push rdx");
+        emit_line(&s, "add " + r9 + ", 8");
         emit_line(&s, "cmp " + rax + ", 0");
         emit_line(&s, "jne " + label);
         emit_line(&s, "mov rsi, rsp");
@@ -91,14 +101,17 @@ std::stringstream emit_expression(bound_expr_call* expr) {
         emit_line(&s, "xor rdx, rdx");
         emit_line(&s, "mov " + rdx + ", " + r9);
         emit_line(&s, "syscall");
-        emit_line(&s, "add " + rsp + ", " + r9);
+        clear_register(&s, R9, size);
+        emit_line(&s, "add rsp, r9");
+
+        emit_line(&s, "; print end");
 
         return s;
     }
-    else if (expr->function == function_print_bool) {
+    else if (expr->function == &function_print_bool) {
         std::stringstream s;
 
-        int size = expr->params[0]->type.size;
+        int size = expr->params[0]->type->size;
         auto rax = get_register(RAX, size);
         auto r9 = get_register(R9, size);
         auto rdx = get_register(RDX, size);
@@ -107,6 +120,9 @@ std::stringstream emit_expression(bound_expr_call* expr) {
         auto label_end = get_label("print_end");
 
         s = emit_expression(expr->params[0]);
+
+        emit_line(&s, "; print start");
+
         emit_line(&s, "push 10");
         emit_line(&s, "cmp " + rax + ", 0");
         emit_line(&s, "jne " + label_true);
@@ -133,27 +149,34 @@ std::stringstream emit_expression(bound_expr_call* expr) {
         emit_line(&s, "xor rdx, rdx");
         emit_line(&s, "mov " + rdx + ", " + r9);
         emit_line(&s, "syscall");
-        emit_line(&s, "add " + rsp + ", " + r9);
+        clear_register(&s, R9, size);
+        emit_line(&s, "add rsp, r9");
+
+        emit_line(&s, "; print end");
 
         return s;
     }
-    else if (expr->function == function_print_char) {
+    else if (expr->function == &function_print_char) {
         std::stringstream s;
 
-        int size = expr->params[0]->type.size;
+        int size = expr->params[0]->type->size;
         auto rax = get_register(RAX, size);
-        auto eax = get_register(RAX, 2);
         
-        emit_line(&s, "xor " + eax + ", " + eax);
         s = emit_expression(expr->params[0]);
+
+        emit_line(&s, "; print start");
+        
         emit_line(&s, "push 10");
-        emit_line(&s, "push " + eax);
+        clear_register(&s, RAX, size);
+        emit_line(&s, "push rax");
         emit_line(&s, "mov rsi, rsp");
         emit_line(&s, "mov rax, 1");
         emit_line(&s, "mov rdi, 1");
-        emit_line(&s, "mov rdx, " + std::to_string(10));
+        emit_line(&s, "mov rdx, 16");
         emit_line(&s, "syscall");
-        emit_line(&s, "add rsp, " + std::to_string(10));
+        emit_line(&s, "add rsp, 16");
+
+        emit_line(&s, "; print end");
 
         return s;
     }
@@ -164,7 +187,28 @@ std::stringstream emit_expression(bound_expr_call* expr) {
 template<>
 std::stringstream emit_expression(bound_expr_error* expr) {
     std::cerr << "Error expression encountered!" << std::endl;
-    std::stringstream stream;
-    stream.clear();
-    return stream;
+    return std::stringstream();
+}
+
+template<>
+std::stringstream emit_expression(bound_expr_type* expr) {
+    std::stringstream s;
+
+    // if it isnt a pointer, nothing to do
+
+    return s;
+}
+
+template<>
+std::stringstream emit_expression(bound_expr_var* expr) {
+    std::stringstream s;
+    
+    int size = expr->var->type->size;
+    int offset = expr->var->offset;
+    auto rax = get_register(RAX, size);
+
+    emit_line(&s, "mov rax, [" + STACK_COUNTER + " - " + std::to_string(offset) + "]");
+    clear_register(&s, RAX, size);
+
+    return s;
 }

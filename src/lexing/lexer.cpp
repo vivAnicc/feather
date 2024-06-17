@@ -75,6 +75,12 @@ class lexer {
                 case ')':
                     add_token(token(token_type::paren_close, std::string{ next() }));
                     continue;
+                case '{':
+                    add_token(token(token_type::brace_open, std::string{ next() }));
+                    continue;
+                case '}':
+                    add_token(token(token_type::brace_close, std::string{ next() }));
+                    continue;
                 case '+':
                     add_token(token(token_type::plus, std::string{ next() }));
                     continue;
@@ -91,10 +97,11 @@ class lexer {
                     add_token(token(token_type::mod, std::string{ next() }));
                     continue;
                 case '=':
-                    if (peek() == '=') {
+                    if (peek() == '=')
                         add_token(token(token_type::ee, std::string { next() + "" + next() }));
-                        continue;
-                    }
+                    else
+                        add_token(token(token_type::equals, std::string { next() }));
+                    continue;
                 case '>':
                     if (peek() == '=')
                         add_token(token(token_type::ge, std::string { next() + "" + next() }));
@@ -150,6 +157,18 @@ class lexer {
                     }
                     else if (string == "false") {
                         add_token(token(token_type::kw_false, string, false));
+                    }
+                    else if (string == "var") {
+                        add_token(token(token_type::kw_var, string));
+                    }
+                    else if (string == "int") {
+                        add_token(token(token_type::kw_int, string, "int"));
+                    }
+                    else if (string == "char") {
+                        add_token(token(token_type::kw_char, string, "char"));
+                    }
+                    else if (string == "bool") {
+                        add_token(token(token_type::kw_bool, string, "bool"));
                     }
                     // not a keyword
                     else {

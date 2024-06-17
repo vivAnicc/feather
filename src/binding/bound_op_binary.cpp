@@ -11,32 +11,32 @@
 class bound_op_binary {
     public:
         binary_operator op;
-        type_symbol left;
-        type_symbol right;
-        type_symbol result;
+        type_symbol* left;
+        type_symbol* right;
+        type_symbol* result;
 
-        bound_op_binary(binary_operator op, type_symbol left, type_symbol right, type_symbol result)
+        bound_op_binary(binary_operator op, type_symbol* left, type_symbol* right, type_symbol* result)
             : op (op), left (left), right (right), result (result) {}
 
-        bound_op_binary(binary_operator op, type_symbol type, type_symbol result)
+        bound_op_binary(binary_operator op, type_symbol* type, type_symbol* result)
             : bound_op_binary(op, type, type, result) {}
 
-        bound_op_binary(binary_operator op, type_symbol type)
+        bound_op_binary(binary_operator op, type_symbol* type)
             : bound_op_binary(op, type, type, type) {}
         
         // left is in RCX, right is in RAX
         void emit(std::stringstream* s) {
-            if (left == type_int && right == type_int)
+            if (left == &type_int && right == &type_int)
                 emit_ints(s);
-            else if (left == type_bool && right == type_bool)
+            else if (left == &type_bool && right == &type_bool)
                 emit_bools(s);
-            else if (left == type_char && right == type_char)
+            else if (left == &type_char && right == &type_char)
                 emit_chars(s);
         }
 
     private:
         void emit_chars(std::stringstream* s) {
-            int op_size = left.size;
+            int op_size = left->size;
 
             auto rax = get_register(RAX, op_size);
             auto rcx = get_register(RCX, op_size);
@@ -70,7 +70,7 @@ class bound_op_binary {
             }
         }
         void emit_bools(std::stringstream* s) {
-            int op_size = left.size;
+            int op_size = left->size;
 
             auto rax = get_register(RAX, op_size);
             auto rcx = get_register(RCX, op_size);
@@ -110,7 +110,7 @@ class bound_op_binary {
             }
         }
         void emit_ints(std::stringstream* s) {
-            int op_size = left.size;
+            int op_size = left->size;
 
             auto rax = get_register(RAX, op_size);
             auto rcx = get_register(RCX, op_size);
@@ -207,90 +207,90 @@ auto valid_binary_operator_list = {
     std::make_pair<binary_operator, std::vector<bound_op_binary>> (
         binary_operator::add,
         {
-            bound_op_binary(binary_operator::add, type_int),
-            bound_op_binary(binary_operator::add, type_string),
+            bound_op_binary(binary_operator::add, &type_int),
+            bound_op_binary(binary_operator::add, &type_string),
         }
     ),
     std::make_pair<binary_operator, std::vector<bound_op_binary>> (
         binary_operator::sub,
         {
-            bound_op_binary(binary_operator::sub, type_int),
+            bound_op_binary(binary_operator::sub, &type_int),
         }
     ),
     std::make_pair<binary_operator, std::vector<bound_op_binary>> (
         binary_operator::mul,
         {
-            bound_op_binary(binary_operator::mul, type_int),
+            bound_op_binary(binary_operator::mul, &type_int),
         }
     ),
     std::make_pair<binary_operator, std::vector<bound_op_binary>> (
         binary_operator::div,
         {
-            bound_op_binary(binary_operator::div, type_int),
+            bound_op_binary(binary_operator::div, &type_int),
         }
     ),
     std::make_pair<binary_operator, std::vector<bound_op_binary>> (
         binary_operator::mod,
         {
-            bound_op_binary(binary_operator::mod, type_int),
+            bound_op_binary(binary_operator::mod, &type_int),
         }
     ),
     std::make_pair<binary_operator, std::vector<bound_op_binary>> (
         binary_operator::logic_and,
         {
-            bound_op_binary(binary_operator::logic_and, type_bool),
+            bound_op_binary(binary_operator::logic_and, &type_bool),
         }
     ),
     std::make_pair<binary_operator, std::vector<bound_op_binary>> (
         binary_operator::logic_or,
         {
-            bound_op_binary(binary_operator::logic_or, type_bool),
+            bound_op_binary(binary_operator::logic_or, &type_bool),
         }
     ),
     std::make_pair<binary_operator, std::vector<bound_op_binary>> (
         binary_operator::equals,
         {
-            bound_op_binary(binary_operator::equals, type_bool),
-            bound_op_binary(binary_operator::equals, type_int, type_bool),
-            bound_op_binary(binary_operator::equals, type_char, type_bool),
+            bound_op_binary(binary_operator::equals, &type_bool),
+            bound_op_binary(binary_operator::equals, &type_int, &type_bool),
+            bound_op_binary(binary_operator::equals, &type_char, &type_bool),
         }
     ),
     std::make_pair<binary_operator, std::vector<bound_op_binary>> (
         binary_operator::not_equals,
         {
-            bound_op_binary(binary_operator::not_equals, type_bool),
-            bound_op_binary(binary_operator::not_equals, type_int, type_bool),
-            bound_op_binary(binary_operator::not_equals, type_char, type_bool),
+            bound_op_binary(binary_operator::not_equals, &type_bool),
+            bound_op_binary(binary_operator::not_equals, &type_int, &type_bool),
+            bound_op_binary(binary_operator::not_equals, &type_char, &type_bool),
         }
     ),
     std::make_pair<binary_operator, std::vector<bound_op_binary>> (
         binary_operator::greater_than,
         {
-            bound_op_binary(binary_operator::greater_than, type_int, type_bool),
+            bound_op_binary(binary_operator::greater_than, &type_int, &type_bool),
         }
     ),
     std::make_pair<binary_operator, std::vector<bound_op_binary>> (
         binary_operator::greater_equals,
         {
-            bound_op_binary(binary_operator::greater_equals, type_int, type_bool),
+            bound_op_binary(binary_operator::greater_equals, &type_int, &type_bool),
         }
     ),
     std::make_pair<binary_operator, std::vector<bound_op_binary>> (
         binary_operator::less_than,
         {
-            bound_op_binary(binary_operator::less_than, type_int, type_bool),
+            bound_op_binary(binary_operator::less_than, &type_int, &type_bool),
         }
     ),
     std::make_pair<binary_operator, std::vector<bound_op_binary>> (
         binary_operator::less_equals,
         {
-            bound_op_binary(binary_operator::less_equals, type_int, type_bool),
+            bound_op_binary(binary_operator::less_equals, &type_int, &type_bool),
         }
     ),
 };
 std::map<binary_operator, std::vector<bound_op_binary>> valid_binary_operators (valid_binary_operator_list.begin(), valid_binary_operator_list.end());
 
-std::optional<bound_op_binary> bind_binary_operator(binary_operator op, type_symbol left, type_symbol right) {
+std::optional<bound_op_binary> bind_binary_operator(binary_operator op, type_symbol* left, type_symbol* right) {
     if (valid_binary_operators.count(op) != 1)
         return std::nullopt;
     
@@ -304,7 +304,7 @@ std::optional<bound_op_binary> bind_binary_operator(binary_operator op, type_sym
     return std::nullopt;
 }
 
-std::optional<bound_op_binary> bind_binary_operator(binary_operator op, type_symbol left, type_symbol right, type_symbol result) {
+std::optional<bound_op_binary> bind_binary_operator(binary_operator op, type_symbol* left, type_symbol* right, type_symbol* result) {
     if (valid_binary_operators.count(op) != 1)
         return std::nullopt;
     

@@ -10,9 +10,12 @@
 #include "stmt_print.cpp"
 #include "stmt_expression.cpp"
 #include "stmt_block.cpp"
+#include "stmt_var_dec.cpp"
 #include "expr_binary.cpp"
 #include "term_literal.cpp"
 #include "term_paren.cpp"
+#include "term_type.cpp"
+#include "term_var.cpp"
 #include "binary_operator.cpp"
 
 class parser {
@@ -75,6 +78,10 @@ class parser {
                 return parse_return_statement();
             case token_type::kw_print:
                 return parse_print_statement();
+            case token_type::kw_var:
+                return parse_var_dec_statement();
+            case token_type::brace_open:
+                return parse_block_statement();
             
             default:
                 return parse_expression_statement();
@@ -110,6 +117,10 @@ class parser {
         std::optional<term*> parse_term() {
             switch (peek().value().type)
             {
+            case token_type::kw_bool:
+            case token_type::kw_int:
+            case token_type::kw_char:
+                return new term_type(next());
             case token_type::kw_true:
             case token_type::kw_false:
             case token_type::num_lit:
@@ -117,6 +128,8 @@ class parser {
                 return new term_literal(next());
             case token_type::paren_open:
                 return parse_term_paren();
+            case token_type::ident:
+                return new term_var(next());
                 
             default:
                 return std::nullopt;
@@ -166,5 +179,15 @@ class parser {
             token close = consume(token_type::brace_close);
 
             return new stmt_block(open, statements, close);
+        }
+
+        stmt_var_dec* parse_var_dec_statement() {
+            token var = consume(token_type::kw_var);
+            token ident = consume(token_type::ident);
+            token equals = consume(token_type::equals);
+            auto expr = parse_expression();
+            token semi = consume(token_type::semi);
+
+            return new stmt_var_dec(var, ident, equals, expr, semi);
         }
 };
