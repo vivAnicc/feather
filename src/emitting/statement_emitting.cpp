@@ -90,11 +90,11 @@ std::stringstream emit_statement(bound_stmt_var_ass* stmt) {
     std::stringstream s;
 
     int size = stmt->var->type->size;
-    int offset = stmt->var->offset;
+    int offset = stmt->var->offset + 8;
 
     s = emit_expression(stmt->expr);
     clear_register(&s, RAX, size);
-    emit_line(&s, "mov [" + STACK_POINTER + " - " + std::to_string(offset) + "], rax");
+    emit_line(&s, "mov [" + STACK_COUNTER + " - " + std::to_string(offset) + "], rax");
 
     return s;
 }
