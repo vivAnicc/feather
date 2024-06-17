@@ -11,9 +11,12 @@ const std::string token_type_name[] = {
     "num_lit",
     "char_lit",
 
-    "semi",
     "paren_open",
     "paren_close",
+    "brace_open",
+    "brace_close",
+
+    "semi",
     "plus",
     "dash",
     "star",
@@ -42,9 +45,12 @@ enum class token_type : int {
     num_lit,
     char_lit,
 
-    semi,
     paren_open,
     paren_close,
+    brace_open,
+    brace_close,
+
+    semi,
     plus,
     dash,
     star,

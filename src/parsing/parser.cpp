@@ -9,6 +9,7 @@
 #include "stmt_exit.cpp"
 #include "stmt_print.cpp"
 #include "stmt_expression.cpp"
+#include "stmt_block.cpp"
 #include "expr_binary.cpp"
 #include "term_literal.cpp"
 #include "term_paren.cpp"
@@ -151,5 +152,19 @@ class parser {
             auto expr = parse_expression();
             token semi = consume(token_type::semi);
             return new stmt_expression(expr, semi);
+        }
+
+        stmt_block* parse_block_statement() {
+            token open = consume(token_type::brace_open);
+            std::vector<statement*> statements;
+
+            while (!end_of_file() && peek().value().type != token_type::brace_close) {
+                auto stmt = parse_statement();
+                statements.push_back(stmt);
+            }
+
+            token close = consume(token_type::brace_close);
+
+            return new stmt_block(open, statements, close);
         }
 };
