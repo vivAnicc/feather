@@ -15,7 +15,7 @@ class binder {
 
             auto scope = current_scope;
             scope_enter();
-            current_scope->var_offset += 8;
+            // current_scope->var_offset += 8;
 
             for (const auto& stmt : statements) {
                 auto res = bind_statement(stmt);

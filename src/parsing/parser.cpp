@@ -11,6 +11,7 @@
 #include "stmt_expression.cpp"
 #include "stmt_block.cpp"
 #include "stmt_var_dec.cpp"
+#include "stmt_var_ass.cpp"
 #include "expr_binary.cpp"
 #include "term_literal.cpp"
 #include "term_paren.cpp"
@@ -82,6 +83,9 @@ class parser {
                 return parse_var_dec_statement();
             case token_type::brace_open:
                 return parse_block_statement();
+            case token_type::ident:
+                if (peek(1).value().type == token_type::equals)
+                    return parse_var_ass_statement();
             
             default:
                 return parse_expression_statement();
@@ -189,5 +193,14 @@ class parser {
             token semi = consume(token_type::semi);
 
             return new stmt_var_dec(var, ident, equals, expr, semi);
+        }
+
+        stmt_var_ass* parse_var_ass_statement() {
+            token ident = consume(token_type::ident);
+            token equals = consume(token_type::equals);
+            auto expr = parse_expression();
+            token semi = consume(token_type::semi);
+
+            return new stmt_var_ass(ident, equals, expr, semi);
         }
 };

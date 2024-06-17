@@ -205,7 +205,6 @@ std::stringstream emit_expression(bound_expr_var* expr) {
     
     int size = expr->var->type->size;
     int offset = expr->var->offset;
-    auto rax = get_register(RAX, size);
 
     emit_line(&s, "mov rax, [" + STACK_COUNTER + " - " + std::to_string(offset) + "]");
     clear_register(&s, RAX, size);

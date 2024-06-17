@@ -19,6 +19,9 @@ std::stringstream emit_statement(T* t) {
     else if (auto stmt = dynamic_cast<bound_stmt_var_dec*>(t)) {
         return emit_statement(stmt);
     }
+    else if (auto stmt = dynamic_cast<bound_stmt_var_ass*>(t)) {
+        return emit_statement(stmt);
+    }
     else {
         std::cerr << "Bound statement not recognized!    " << typeid(*t).name() << std::endl;
         return std::stringstream();
@@ -78,6 +81,20 @@ std::stringstream emit_statement(bound_stmt_var_dec* stmt) {
     s = emit_expression(stmt->expr);
     clear_register(&s, RAX, size);
     emit_line(&s, "push rax");
+
+    return s;
+}
+
+template<>
+std::stringstream emit_statement(bound_stmt_var_ass* stmt) {
+    std::stringstream s;
+
+    int size = stmt->var->type->size;
+    int offset = stmt->var->offset;
+
+    s = emit_expression(stmt->expr);
+    clear_register(&s, RAX, size);
+    emit_line(&s, "mov [" + STACK_POINTER + " - " + std::to_string(offset) + "], rax");
 
     return s;
 }

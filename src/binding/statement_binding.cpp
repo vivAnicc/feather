@@ -8,7 +8,9 @@
 #include "bound_stmt_expr.cpp"
 #include "bound_stmt_block.cpp"
 #include "bound_stmt_var_dec.cpp"
+#include "bound_stmt_var_ass.cpp"
 #include "bound_expr_call.cpp"
+#include "bound_expr_error.cpp"
 #include "../symbols/function_symbol.cpp"
 
 template<class T>
@@ -31,10 +33,17 @@ bound_statement* bind_statement(T* t) {
     else if (auto stmt = dynamic_cast<stmt_var_dec*>(t)) {
         return bind_statement(stmt);
     }
+    else if (auto stmt = dynamic_cast<stmt_var_ass*>(t)) {
+        return bind_statement(stmt);
+    }
     else {
         std::cerr << "Statement node not recognized!    " << typeid(*t).name() << std::endl;
         return nullptr;
     }
+}
+
+bound_statement* statement_error() {
+    return new bound_stmt_expr(new bound_expr_error());
 }
 
 template<>
@@ -48,7 +57,7 @@ bound_statement* bind_statement(stmt_block* stmt) {
     std::vector<bound_statement*> statements;
 
     scope_enter();
-    current_scope->var_offset += 8;
+    // current_scope->var_offset += 8;
 
     for (const auto& s : stmt->statements) {
         statements.push_back(bind_statement(s));
@@ -91,4 +100,17 @@ bound_statement* bind_statement(stmt_var_dec* stmt) {
     }
 
     return new bound_stmt_var_dec(var, expr);
+}
+
+template<>
+bound_statement* bind_statement(stmt_var_ass* stmt) {
+    auto name = std::get<std::string>(stmt->ident.value.value());
+    auto var = current_scope->get_variable(name);
+    auto expr = bind_expression(stmt->expr);
+
+    if (var && var->type == expr->type) {
+        return new bound_stmt_var_ass(var, expr);
+    }
+
+    return statement_error();
 }

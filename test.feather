@@ -1,8 +1,7 @@
-print (1);
-var a = 32;
+
 {
     var a = false;
+    a = true;
     print (a);
 }
-print (a);
 exit 0;
