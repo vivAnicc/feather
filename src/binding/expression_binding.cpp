@@ -81,8 +81,10 @@ template<>
 bound_expression* bind_expression(term_var* expr) {
     auto name = std::get<std::string>(expr->ident.value.value());
     auto var = current_scope->get_variable(name);
+    int offset = current_scope->get_offset(var) + 8;
+
     if (var) {
-        return new bound_expr_var(var);
+        return new bound_expr_var(var, offset);
     }
 
     return new bound_expr_error;

@@ -1,6 +1,12 @@
 var a = 20;
-var b = 2;
-a = a - b;
+print (45);
+a = 14;
+{
+    var a = 32;
+    {
+        print (a);
+    }
+}
+print (a - 2);
 print (a);
-print (a + b);
 exit 0;

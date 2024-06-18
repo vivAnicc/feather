@@ -83,6 +83,31 @@ class bound_scope {
             return res;
         }
 
+        bool is_owned(variable_symbol* var) {
+            if (variables.count(var->name) == 1 && variables[var->name] == var)
+                return true;
+            return false;
+        }
+
+        int get_offset(variable_symbol* var) {
+            bool owned = is_owned(var);
+
+            if (owned)
+                return var->offset;
+            
+            if (parent == NULL)
+                return -1;
+
+            if (parent->is_owned(var)) {
+                int parent_offset = parent->var_offset - parent->get_offset(var) + 8;
+                return -parent_offset;
+            }
+            else {
+                int parent_offset = parent->get_offset(var) + parent->var_offset;
+                return -parent_offset;
+            }
+        }
+
         int get_total_offset() {
             int offset = var_offset;
 

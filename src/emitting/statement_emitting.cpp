@@ -3,6 +3,7 @@
 #include <typeinfo>
 #include "emitter.cpp"
 #include "expression_emitting.cpp"
+#include "../binding/bound_stmt_gotoif.cpp"
 #include "../binding/statement_binding.cpp"
 
 template<class T>
@@ -20,6 +21,15 @@ std::stringstream emit_statement(T* t) {
         return emit_statement(stmt);
     }
     else if (auto stmt = dynamic_cast<bound_stmt_var_ass*>(t)) {
+        return emit_statement(stmt);
+    }
+    else if (auto stmt = dynamic_cast<bound_stmt_label*>(t)) {
+        return emit_statement(stmt);
+    }
+    else if (auto stmt = dynamic_cast<bound_stmt_goto*>(t)) {
+        return emit_statement(stmt);
+    }
+    else if (auto stmt = dynamic_cast<bound_stmt_gotoif*>(t)) {
         return emit_statement(stmt);
     }
     else {
@@ -90,11 +100,47 @@ std::stringstream emit_statement(bound_stmt_var_ass* stmt) {
     std::stringstream s;
 
     int size = stmt->var->type->size;
-    int offset = stmt->var->offset + 8;
+    // int offset = stmt->var->offset + 8;
+    int offset = stmt->offset;
 
     s = emit_expression(stmt->expr);
     clear_register(&s, RAX, size);
     emit_line(&s, "mov [" + STACK_COUNTER + " - " + std::to_string(offset) + "], rax");
+
+    return s;
+}
+
+template<>
+std::stringstream emit_statement(bound_stmt_label* stmt) {
+    std::stringstream s;
+
+    emit_line(&s, stmt->name + ":");
+
+    return s;
+}
+
+template<>
+std::stringstream emit_statement(bound_stmt_goto* stmt) {
+    std::stringstream s;
+
+    emit_line(&s, "jmp " + stmt->label);
+
+    return s;
+}
+
+template<>
+std::stringstream emit_statement(bound_stmt_gotoif* stmt) {
+    std::stringstream s;
+
+    int size = stmt->expr->type->size;
+    auto rax = get_register(RAX, size);
+
+    s = emit_expression(stmt->expr);
+    emit_line(&s, "cmp " + rax + ", 0");
+    if (stmt->comp)
+        emit_line(&s, "jne " + stmt->label);
+    else
+        emit_line(&s, "je " + stmt->label);
 
     return s;
 }

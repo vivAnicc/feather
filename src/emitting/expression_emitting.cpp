@@ -204,7 +204,8 @@ std::stringstream emit_expression(bound_expr_var* expr) {
     std::stringstream s;
     
     int size = expr->var->type->size;
-    int offset = expr->var->offset + 8;
+    // int offset = expr->var->offset + 8;
+    int offset = expr->offset;
 
     emit_line(&s, "mov rax, [" + STACK_COUNTER + " - " + std::to_string(offset) + "]");
     clear_register(&s, RAX, size);

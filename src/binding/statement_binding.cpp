@@ -9,6 +9,8 @@
 #include "bound_stmt_block.cpp"
 #include "bound_stmt_var_dec.cpp"
 #include "bound_stmt_var_ass.cpp"
+#include "bound_stmt_label.cpp"
+#include "bound_stmt_goto.cpp"
 #include "bound_expr_call.cpp"
 #include "bound_expr_error.cpp"
 #include "../symbols/function_symbol.cpp"
@@ -24,7 +26,7 @@ bound_statement* bind_statement(T* t) {
     else if (auto stmt = dynamic_cast<stmt_print*>(t)) {
         return bind_statement(stmt);
     }
-    else if (auto stmt = dynamic_cast<stmt_exit*>(t)) {
+    else if (auto stmt = dynamic_cast<stmt_expression*>(t)) {
         return bind_statement(stmt);
     }
     else if (auto stmt = dynamic_cast<stmt_block*>(t)) {
@@ -34,6 +36,12 @@ bound_statement* bind_statement(T* t) {
         return bind_statement(stmt);
     }
     else if (auto stmt = dynamic_cast<stmt_var_ass*>(t)) {
+        return bind_statement(stmt);
+    }
+    else if (auto stmt = dynamic_cast<stmt_label*>(t)) {
+        return bind_statement(stmt);
+    }
+    else if (auto stmt = dynamic_cast<stmt_goto*>(t)) {
         return bind_statement(stmt);
     }
     else {
@@ -106,11 +114,28 @@ template<>
 bound_statement* bind_statement(stmt_var_ass* stmt) {
     auto name = std::get<std::string>(stmt->ident.value.value());
     auto var = current_scope->get_variable(name);
+    int offset = current_scope->get_offset(var) + 8;
     auto expr = bind_expression(stmt->expr);
 
     if (var && var->type == expr->type) {
-        return new bound_stmt_var_ass(var, expr);
+        return new bound_stmt_var_ass(var, expr, offset);
     }
 
     return statement_error();
+}
+
+template<>
+bound_statement* bind_statement(stmt_label* stmt) {
+    auto name = std::get<std::string>(stmt->label.value.value());
+    auto label = "_" + name;
+    
+    return new bound_stmt_label(label);
+}
+
+template<>
+bound_statement* bind_statement(stmt_goto* stmt) {
+    auto name = std::get<std::string>(stmt->label.value.value());
+    auto label = "_" + name;
+
+    return new bound_stmt_goto(label);
 }

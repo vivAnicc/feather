@@ -152,6 +152,12 @@ class lexer {
                     else if (string == "print") {
                         add_token(token(token_type::kw_print, string));
                     }
+                    else if (string == "label") {
+                        add_token(token(token_type::kw_label, string));
+                    }
+                    else if (string == "goto") {
+                        add_token(token(token_type::kw_goto, string));
+                    }
                     else if (string == "true") {
                         add_token(token(token_type::kw_true, string, true));
                     }
