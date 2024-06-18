@@ -158,6 +158,12 @@ class lexer {
                     else if (string == "goto") {
                         add_token(token(token_type::kw_goto, string));
                     }
+                    else if (string == "if") {
+                        add_token(token(token_type::kw_if, string));
+                    }
+                    else if (string == "else") {
+                        add_token(token(token_type::kw_else, string));
+                    }
                     else if (string == "true") {
                         add_token(token(token_type::kw_true, string, true));
                     }

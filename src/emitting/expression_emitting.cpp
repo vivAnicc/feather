@@ -5,6 +5,10 @@
 
 template<class T>
 std::stringstream emit_expression(T* t) {
+    if (t == NULL) {
+        std::cerr << "Null node encountered!" << std::endl;
+        return std::stringstream();
+    }
     if (auto expr = dynamic_cast<bound_expr_term*>(t)) {
         return emit_expression(expr);
     }

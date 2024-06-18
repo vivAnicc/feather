@@ -1,4 +1,4 @@
-var a = 20;
+var a = int;
 print (45);
 a = 14;
 {
@@ -8,5 +8,12 @@ a = 14;
     }
 }
 print (a - 2);
-print (a);
+if (false)
+    print (a);
+else if (false) {
+
+    print (a / 2);
+}
+else
+print (a * 2);
 exit 0;

@@ -10,7 +10,7 @@ class binder {
     public:
         binder(std::vector<statement*> statements) : statements (statements) {}
 
-        std::vector<bound_statement*> bind() {
+        bound_stmt_block* bind() {
             std::vector<bound_statement*> result;
 
             auto scope = current_scope;
@@ -25,7 +25,7 @@ class binder {
             scope_leave();
             auto block = new bound_stmt_block(result, scope);
 
-            return { block };
+            return block;
         }
 };
 

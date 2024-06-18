@@ -5,9 +5,15 @@
 #include "expression_emitting.cpp"
 #include "../binding/bound_stmt_gotoif.cpp"
 #include "../binding/statement_binding.cpp"
+#include "../binding/lowered_block_start.cpp"
+#include "../binding/lowered_block_end.cpp"
 
 template<class T>
 std::stringstream emit_statement(T* t) {
+    if (t == NULL) {
+        std::cerr << "Null node encountered!" << std::endl;
+        return std::stringstream();
+    }
     if (auto stmt = dynamic_cast<bound_stmt_expr*>(t)) {
         return emit_statement(stmt);
     }
@@ -30,6 +36,12 @@ std::stringstream emit_statement(T* t) {
         return emit_statement(stmt);
     }
     else if (auto stmt = dynamic_cast<bound_stmt_gotoif*>(t)) {
+        return emit_statement(stmt);
+    }
+    else if (auto stmt = dynamic_cast<lowered_block_end*>(t)) {
+        return emit_statement(stmt);
+    }
+    else if (auto stmt = dynamic_cast<lowered_block_start*>(t)) {
         return emit_statement(stmt);
     }
     else {
@@ -75,6 +87,26 @@ std::stringstream emit_statement(bound_stmt_block* stmt) {
     for (const auto& statement : stmt->statements) {
         s << emit_statement(statement).str();
     }
+
+    emit_line(&s, "mov " + STACK_POINTER + ", " + STACK_COUNTER);
+    emit_line(&s, "pop " + STACK_COUNTER);
+
+    return s;
+}
+
+template<>
+std::stringstream emit_statement(lowered_block_start* stmt) {
+    std::stringstream s;
+
+    emit_line(&s, "push " + STACK_COUNTER);
+    emit_line(&s, "mov " + STACK_COUNTER + ", " + STACK_POINTER);
+
+    return s;
+}
+
+template<>
+std::stringstream emit_statement(lowered_block_end* stmt) {
+    std::stringstream s;
 
     emit_line(&s, "mov " + STACK_POINTER + ", " + STACK_COUNTER);
     emit_line(&s, "pop " + STACK_COUNTER);

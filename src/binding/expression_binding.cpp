@@ -11,6 +11,10 @@
 
 template<class T>
 bound_expression* bind_expression(T* t) {
+    if (t == NULL) {
+        std::cerr << "Null node encountered!" << std::endl;
+        return new bound_expr_error;
+    }
     if (auto expr = dynamic_cast<expr_binary*>(t)) {
         return bind_expression(expr);
     }

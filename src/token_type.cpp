@@ -12,6 +12,8 @@ const std::string token_type_name[] = {
     "kw_bool",
     "kw_label",
     "kw_goto",
+    "kw_if",
+    "kw_else",
 
     "ident",
     "num_lit",
@@ -53,6 +55,8 @@ enum class token_type : int {
     kw_bool,
     kw_label,
     kw_goto,
+    kw_if,
+    kw_else,
 
     ident,
     num_lit,

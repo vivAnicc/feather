@@ -7,6 +7,7 @@
 #include "parsing/parser.cpp"
 #include "emitting/emitter.cpp"
 #include "binding/binder.cpp"
+#include "lowering/lowerer.cpp"
 
 void print_node(node* node) {
     std::cout << typeid(*node).name() << std::endl;
@@ -71,7 +72,10 @@ int main(int argc, char* argv[]) {
     // std::cout << std::endl;
 
     binder binder(statements);
-    auto bound_statements = binder.bind();
+    auto bound_statement = binder.bind();
+
+    lowerer lowerer(bound_statement);
+    auto bound_statements = lowerer.lower();
 
     // for (const auto& stmt : bound_statements) {
     //     print_node(stmt);

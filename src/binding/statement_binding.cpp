@@ -11,6 +11,7 @@
 #include "bound_stmt_var_ass.cpp"
 #include "bound_stmt_label.cpp"
 #include "bound_stmt_goto.cpp"
+#include "bound_stmt_if.cpp"
 #include "bound_expr_call.cpp"
 #include "bound_expr_error.cpp"
 #include "../symbols/function_symbol.cpp"
@@ -18,8 +19,16 @@
 template<class T>
 bound_expression* bind_expression(T* t);
 
+bound_statement* statement_error() {
+    return new bound_stmt_expr(new bound_expr_error());
+}
+
 template<class T>
 bound_statement* bind_statement(T* t) {
+    if (t == NULL) {
+        std::cerr << "Null node encountered!" << std::endl;
+        return statement_error();
+    }
     if (auto stmt = dynamic_cast<stmt_exit*>(t)) {
         return bind_statement(stmt);
     }
@@ -44,14 +53,13 @@ bound_statement* bind_statement(T* t) {
     else if (auto stmt = dynamic_cast<stmt_goto*>(t)) {
         return bind_statement(stmt);
     }
+    else if (auto stmt = dynamic_cast<stmt_if*>(t)) {
+        return bind_statement(stmt);
+    }
     else {
         std::cerr << "Statement node not recognized!    " << typeid(*t).name() << std::endl;
         return nullptr;
     }
-}
-
-bound_statement* statement_error() {
-    return new bound_stmt_expr(new bound_expr_error());
 }
 
 template<>
@@ -138,4 +146,16 @@ bound_statement* bind_statement(stmt_goto* stmt) {
     auto label = "_" + name;
 
     return new bound_stmt_goto(label);
+}
+
+template<>
+bound_statement* bind_statement(stmt_if* stmt) {
+    auto expr = bind_expression(stmt->expr);
+    auto s = bind_statement(stmt->stmt);
+    std::optional<bound_statement*> s_else = std::nullopt;
+    if (stmt->has_else()) {
+        s_else = bind_statement(stmt->stmt_else.value());
+    }
+
+    return new bound_stmt_if(expr, s, s_else);
 }

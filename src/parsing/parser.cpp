@@ -14,6 +14,7 @@
 #include "stmt_var_ass.cpp"
 #include "stmt_label.cpp"
 #include "stmt_goto.cpp"
+#include "stmt_if.cpp"
 #include "expr_binary.cpp"
 #include "term_literal.cpp"
 #include "term_paren.cpp"
@@ -89,6 +90,8 @@ class parser {
                 return parse_label_statement();
             case token_type::kw_goto:
                 return parse_goto_statement();
+            case token_type::kw_if:
+                return parse_if_statement();
             case token_type::ident:
                 if (peek(1).value().type == token_type::equals)
                     return parse_var_ass_statement();
@@ -224,5 +227,21 @@ class parser {
             token semi = consume(token_type::semi);
 
             return new stmt_goto(gt, label, semi);
+        }
+
+        stmt_if* parse_if_statement() {
+            token kw = consume(token_type::kw_if);
+            token open = consume(token_type::paren_open);
+            auto expr = parse_expression();
+            token close = consume(token_type::paren_close);
+            auto stmt = parse_statement();
+            std::optional<token> kw_else = std::nullopt;
+            std::optional<statement*> stmt_else = std::nullopt;
+            if (peek().value().type == token_type::kw_else) {
+                kw_else = consume(token_type::kw_else);
+                stmt_else = parse_statement();
+            }
+
+            return new stmt_if(kw, open, expr, close, stmt, kw_else, stmt_else);
         }
 };
