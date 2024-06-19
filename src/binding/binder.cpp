@@ -41,3 +41,16 @@ std::optional<type_symbol*> string_to_type(const std::string& name) {
     
     return std::nullopt;
 }
+
+template<class T2, class T1>
+T2* try_get(T1* t) {
+    if (t == NULL) {
+        return nullptr;
+    }
+    if (auto res = dynamic_cast<T2*>(t)) {
+        return res;
+    }
+    else {
+        return nullptr;
+    }
+}

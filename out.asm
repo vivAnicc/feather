@@ -32,7 +32,13 @@ and rax, -1
 mov [rbp - 8], rax
 push rbp
 mov rbp, rsp
+push rbp
+mov rbp, rsp
 mov eax, 32
+jmp end_label5
+end_label5:
+mov rsp, rbp
+pop rbp
 and rax, -1
 push rax
 push rbp
@@ -43,7 +49,7 @@ and rax, -1
 push 10
 mov r9d, 8
 mov r10d, 10
-print_loop5:
+print_loop6:
 xor edx, edx
 div r10d
 add edx, 48
@@ -51,7 +57,7 @@ and rdx, -1
 push rdx
 add r9d, 8
 cmp eax, 0
-jne print_loop5
+jne print_loop6
 mov rsi, rsp
 mov rax, 1
 mov rdi, 1
@@ -76,7 +82,7 @@ mov eax, ecx
 push 10
 mov r9d, 8
 mov r10d, 10
-print_loop6:
+print_loop7:
 xor edx, edx
 div r10d
 add edx, 48
@@ -84,7 +90,7 @@ and rdx, -1
 push rdx
 add r9d, 8
 cmp eax, 0
-jne print_loop6
+jne print_loop7
 mov rsi, rsp
 mov rax, 1
 mov rdi, 1
@@ -103,7 +109,7 @@ and rax, -1
 push 10
 mov r9d, 8
 mov r10d, 10
-print_loop9:
+print_loop10:
 xor edx, edx
 div r10d
 add edx, 48
@@ -111,7 +117,7 @@ and rdx, -1
 push rdx
 add r9d, 8
 cmp eax, 0
-jne print_loop9
+jne print_loop10
 mov rsi, rsp
 mov rax, 1
 mov rdi, 1
@@ -140,7 +146,7 @@ div ecx
 push 10
 mov r9d, 8
 mov r10d, 10
-print_loop10:
+print_loop11:
 xor edx, edx
 div r10d
 add edx, 48
@@ -148,7 +154,7 @@ and rdx, -1
 push rdx
 add r9d, 8
 cmp eax, 0
-jne print_loop10
+jne print_loop11
 mov rsi, rsp
 mov rax, 1
 mov rdi, 1
@@ -172,7 +178,7 @@ mul ecx
 push 10
 mov r9d, 8
 mov r10d, 10
-print_loop13:
+print_loop14:
 xor edx, edx
 div r10d
 add edx, 48
@@ -180,7 +186,7 @@ and rdx, -1
 push rdx
 add r9d, 8
 cmp eax, 0
-jne print_loop13
+jne print_loop14
 mov rsi, rsp
 mov rax, 1
 mov rdi, 1

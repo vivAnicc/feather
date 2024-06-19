@@ -16,11 +16,13 @@
 #include "stmt_goto.cpp"
 #include "stmt_if.cpp"
 #include "stmt_function.cpp"
+#include "stmt_return.cpp"
 #include "expr_binary.cpp"
 #include "term_literal.cpp"
 #include "term_paren.cpp"
 #include "term_type.cpp"
 #include "term_var.cpp"
+#include "term_statement.cpp"
 #include "binary_operator.cpp"
 
 class parser {
@@ -74,13 +76,24 @@ class parser {
         }
     
     private:
+        std::vector<statement*> parse_statements() {
+            std::vector<statement*> statements;
+
+            while (!end_of_file() && peek().value().type != token_type::brace_close) {
+                auto stmt = parse_statement();
+                statements.push_back(stmt);
+            }
+
+            return statements;
+        }
+
         statement* parse_statement() {
             token current = peek().value();
 
             switch (current.type)
             {
             case token_type::kw_exit:
-                return parse_return_statement();
+                return parse_exit_statement();
             case token_type::kw_print:
                 return parse_print_statement();
             case token_type::kw_var:
@@ -101,6 +114,8 @@ class parser {
             case token_type::kw_int:
             case token_type::kw_void:
                 return parse_function_statement();
+            case token_type::kw_return:
+                return parse_return_statement();
             
             default:
                 return parse_expression_statement();
@@ -149,6 +164,8 @@ class parser {
                 return parse_term_paren();
             case token_type::ident:
                 return new term_var(next());
+            case token_type::brace_open:
+                return parse_term_stmt();
                 
             default:
                 return std::nullopt;
@@ -162,7 +179,15 @@ class parser {
             return new term_paren(open, expr, close);
         }
 
-        stmt_exit* parse_return_statement() {
+        term_statement* parse_term_stmt() {
+            token open = consume(token_type::brace_open);
+            auto stmts = parse_statements();
+            token close = consume(token_type::brace_close);
+
+            return new term_statement(open, stmts, close);
+        }
+
+        stmt_exit* parse_exit_statement() {
             token return_token = consume(token_type::kw_exit);
             auto expr = parse_expression();
             token semi = consume(token_type::semi);
@@ -188,13 +213,7 @@ class parser {
 
         stmt_block* parse_block_statement() {
             token open = consume(token_type::brace_open);
-            std::vector<statement*> statements;
-
-            while (!end_of_file() && peek().value().type != token_type::brace_close) {
-                auto stmt = parse_statement();
-                statements.push_back(stmt);
-            }
-
+            auto statements = parse_statements();
             token close = consume(token_type::brace_close);
 
             return new stmt_block(open, statements, close);
@@ -279,5 +298,13 @@ class parser {
             auto stmt = parse_statement();
 
             return new stmt_function(type, ident, open, params, close, stmt);
+        }
+
+        stmt_return* parse_return_statement() {
+            token kw = consume(token_type::kw_return);
+            auto expr = parse_expression();
+            token semi = consume(token_type::semi);
+
+            return new stmt_return(kw, expr, semi);
         }
 };

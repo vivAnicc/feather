@@ -4,6 +4,12 @@
 #include "../symbols/function_symbol.cpp"
 
 template<class T>
+std::stringstream emit_statement(T* t);
+void regenerate_label();
+std::string consume_label();
+std::stringstream emit_block_end();
+
+template<class T>
 std::stringstream emit_expression(T* t) {
     if (t == NULL) {
         std::cerr << "Null node encountered!" << std::endl;
@@ -25,6 +31,9 @@ std::stringstream emit_expression(T* t) {
         return emit_expression(expr);
     }
     else if (auto expr = dynamic_cast<bound_expr_var*>(t)) {
+        return emit_expression(expr);
+    }
+    else if (auto expr = dynamic_cast<bound_expr_stmt*>(t)) {
         return emit_expression(expr);
     }
     else {
@@ -214,5 +223,19 @@ std::stringstream emit_expression(bound_expr_var* expr) {
     emit_line(&s, "mov rax, [" + STACK_COUNTER + " - " + std::to_string(offset) + "]");
     clear_register(&s, RAX, size);
 
+    return s;
+}
+
+template<>
+std::stringstream emit_expression(bound_expr_stmt* expr) {
+    std::stringstream s;
+
+    regenerate_label();
+    for (const auto& stmt : expr->statements) {
+        s << emit_statement(stmt).str();
+    }
+    emit_line(&s, consume_label() + ":");
+    s << emit_block_end().str();
+    
     return s;
 }

@@ -22,6 +22,24 @@ vs lower_statement(T* t) {
     else if (auto stmt = dynamic_cast<bound_stmt_function*>(t)) {
         return lower_statement(stmt);
     }
+    else if (auto stmt = dynamic_cast<bound_stmt_exit*>(t)) {
+        return lower_statement(stmt);
+    }
+    else if (auto stmt = dynamic_cast<bound_stmt_expr*>(t)) {
+        return lower_statement(stmt);
+    }
+    else if (auto stmt = dynamic_cast<bound_stmt_gotoif*>(t)) {
+        return lower_statement(stmt);
+    }
+    else if (auto stmt = dynamic_cast<bound_stmt_return*>(t)) {
+        return lower_statement(stmt);
+    }
+    else if (auto stmt = dynamic_cast<bound_stmt_var_ass*>(t)) {
+        return lower_statement(stmt);
+    }
+    else if (auto stmt = dynamic_cast<bound_stmt_var_dec*>(t)) {
+        return lower_statement(stmt);
+    }
     else {
         return { t };
     }
@@ -92,4 +110,46 @@ vs lower_statement(bound_stmt_function* stmt) {
         stmt,
         label,
     };
+}
+
+template<>
+vs lower_statement(bound_stmt_exit* stmt) {
+    auto expr = lower_expression(stmt->expr);
+
+    return { new bound_stmt_exit(expr) };
+}
+
+template<>
+vs lower_statement(bound_stmt_expr* stmt) {
+    auto expr = lower_expression(stmt->expr);
+
+    return { new bound_stmt_expr(expr) };
+}
+
+template<>
+vs lower_statement(bound_stmt_gotoif* stmt) {
+    auto expr = lower_expression(stmt->expr);
+
+    return { new bound_stmt_gotoif(stmt->label, expr, stmt->comp) };
+}
+
+template<>
+vs lower_statement(bound_stmt_return* stmt) {
+    auto expr = lower_expression(stmt->expr);
+
+    return { new bound_stmt_return(expr) };
+}
+
+template<>
+vs lower_statement(bound_stmt_var_ass* stmt) {
+    auto expr = lower_expression(stmt->expr);
+
+    return { new bound_stmt_var_ass(stmt->var, expr, stmt->offset) };
+}
+
+template<>
+vs lower_statement(bound_stmt_var_dec* stmt) {
+    auto expr = lower_expression(stmt->expr);
+
+    return { new bound_stmt_var_dec(stmt->var, expr) };
 }

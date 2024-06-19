@@ -176,6 +176,9 @@ class lexer {
                     else if (string == "var") {
                         add_token(token(token_type::kw_var, string));
                     }
+                    else if (string == "return") {
+                        add_token(token(token_type::kw_return, string));
+                    }
                     else if (string == "int") {
                         add_token(token(token_type::kw_int, string, "int"));
                     }

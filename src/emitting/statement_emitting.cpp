@@ -8,6 +8,19 @@
 #include "../binding/lowered_block_start.cpp"
 #include "../binding/lowered_block_end.cpp"
 
+std::string current_label;
+
+void regenerate_label() {
+    if (current_label == "")
+        current_label = get_label("end_label");
+}
+
+std::string consume_label() {
+    std::string label = current_label;
+    current_label = "";
+    return label;
+}
+
 template<class T>
 std::stringstream emit_statement(T* t) {
     if (t == NULL) {
@@ -39,6 +52,9 @@ std::stringstream emit_statement(T* t) {
         return emit_statement(stmt);
     }
     else if (auto stmt = dynamic_cast<bound_stmt_function*>(t)) {
+        return emit_statement(stmt);
+    }
+    else if (auto stmt = dynamic_cast<bound_stmt_return*>(t)) {
         return emit_statement(stmt);
     }
     else if (auto stmt = dynamic_cast<lowered_block_end*>(t)) {
@@ -97,8 +113,7 @@ std::stringstream emit_statement(bound_stmt_block* stmt) {
     return s;
 }
 
-template<>
-std::stringstream emit_statement(lowered_block_start* stmt) {
+std::stringstream emit_block_start() {
     std::stringstream s;
 
     emit_line(&s, "push " + STACK_COUNTER);
@@ -108,13 +123,22 @@ std::stringstream emit_statement(lowered_block_start* stmt) {
 }
 
 template<>
-std::stringstream emit_statement(lowered_block_end* stmt) {
+std::stringstream emit_statement(lowered_block_start* stmt) {
+    return emit_block_start();
+}
+
+std::stringstream emit_block_end() {
     std::stringstream s;
 
     emit_line(&s, "mov " + STACK_POINTER + ", " + STACK_COUNTER);
     emit_line(&s, "pop " + STACK_COUNTER);
 
     return s;
+}
+
+template<>
+std::stringstream emit_statement(lowered_block_end* stmt) {
+    return emit_block_end();
 }
 
 template<>
@@ -187,6 +211,19 @@ std::stringstream emit_statement(bound_stmt_function* stmt) {
     std::string label = "function_" + stmt->function->name;
 
     emit_line(&s, label + ":");
+    s << emit_statement(stmt->body).str();
+    emit_line(&s, "ret");
+
+    return s;
+}
+
+template<>
+std::stringstream emit_statement(bound_stmt_return* stmt) {
+    std::stringstream s;
+
+    s = emit_expression(stmt->expr);
+    regenerate_label();
+    emit_line(&s, "jmp " + current_label);
 
     return s;
 }

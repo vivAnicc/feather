@@ -14,6 +14,7 @@
 #include "bound_stmt_if.cpp"
 #include "bound_stmt_gotoif.cpp"
 #include "bound_stmt_function.cpp"
+#include "bound_stmt_return.cpp"
 #include "bound_expr_call.cpp"
 #include "bound_expr_error.cpp"
 #include "../symbols/function_symbol.cpp"
@@ -60,6 +61,9 @@ bound_statement* bind_statement(T* t) {
         return bind_statement(stmt);
     }
     else if (auto stmt = dynamic_cast<stmt_function*>(t)) {
+        return bind_statement(stmt);
+    }
+    else if (auto stmt = dynamic_cast<stmt_return*>(t)) {
         return bind_statement(stmt);
     }
     else {
@@ -176,7 +180,7 @@ bound_statement* bind_statement(stmt_function* stmt) {
         std::string name = std::get<std::string>(param.ident.value.value());
         std::string type_name = std::get<std::string>(param.type.value.value());
         type_symbol* type = string_to_type(type_name).value();
-        v.push_back(new parameter_symbol(name, type, i));
+        v[i] = new parameter_symbol(name, type, i);
     }
     
     std::string name = std::get<std::string>(stmt->ident.value.value());
@@ -186,4 +190,10 @@ bound_statement* bind_statement(stmt_function* stmt) {
     auto function = new function_symbol(name, type, v);
     auto body = bind_statement(stmt->body);
     return new bound_stmt_function(function, v, body);
+}
+
+template<>
+bound_statement* bind_statement(stmt_return* stmt) {
+    auto expr = bind_expression(stmt->expr);
+    return new bound_stmt_return(expr);
 }

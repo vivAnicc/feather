@@ -6,7 +6,8 @@
 #include "bound_expr_error.cpp"
 #include "bound_expr_binary.cpp"
 #include "bound_expr_type.cpp"
-#include"bound_expr_var.cpp"
+#include "bound_expr_var.cpp"
+#include "bound_expr_stmt.cpp"
 #include "bound_op_binary.cpp"
 
 template<class T>
@@ -28,6 +29,9 @@ bound_expression* bind_expression(T* t) {
         return bind_expression(expr);
     }
     else if (auto expr = dynamic_cast<term_var*>(t)) {
+        return bind_expression(expr);
+    }
+    else if (auto expr = dynamic_cast<term_statement*>(t)) {
         return bind_expression(expr);
     }
     else {
@@ -92,4 +96,24 @@ bound_expression* bind_expression(term_var* expr) {
     }
 
     return new bound_expr_error;
+}
+
+template<>
+bound_expression* bind_expression(term_statement* expr) {
+    std::vector<bound_statement*> v;
+    type_symbol* type = &type_void;
+
+    scope_enter();
+
+    for (const auto& s : expr->statements) {
+        auto bs = bind_statement(s);
+        v.push_back(bs);
+        if (auto ret = try_get<bound_stmt_return>(bs)) {
+            type = ret->expr->type;
+        }
+    }
+
+    scope_leave();
+
+    return new bound_expr_stmt(type, v);
 }

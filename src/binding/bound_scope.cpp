@@ -49,7 +49,6 @@ class bound_scope {
 
         std::vector<variable_symbol*> get_all_variables() {
             std::vector<variable_symbol*> res;
-            res.resize(variables.size());
 
             for (const auto& pair : variables) {
                 res.push_back(pair.second);
@@ -67,7 +66,6 @@ class bound_scope {
 
         std::vector<function_symbol*> get_all_functions() {
             std::vector<function_symbol*> res;
-            res.resize(functions.size());
 
             for (const auto& pair : functions) {
                 res.push_back(pair.second);
