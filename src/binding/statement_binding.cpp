@@ -12,12 +12,15 @@
 #include "bound_stmt_label.cpp"
 #include "bound_stmt_goto.cpp"
 #include "bound_stmt_if.cpp"
+#include "bound_stmt_gotoif.cpp"
+#include "bound_stmt_function.cpp"
 #include "bound_expr_call.cpp"
 #include "bound_expr_error.cpp"
 #include "../symbols/function_symbol.cpp"
 
 template<class T>
 bound_expression* bind_expression(T* t);
+std::optional<type_symbol*> string_to_type(const std::string& name);
 
 bound_statement* statement_error() {
     return new bound_stmt_expr(new bound_expr_error());
@@ -54,6 +57,9 @@ bound_statement* bind_statement(T* t) {
         return bind_statement(stmt);
     }
     else if (auto stmt = dynamic_cast<stmt_if*>(t)) {
+        return bind_statement(stmt);
+    }
+    else if (auto stmt = dynamic_cast<stmt_function*>(t)) {
         return bind_statement(stmt);
     }
     else {
@@ -158,4 +164,26 @@ bound_statement* bind_statement(stmt_if* stmt) {
     }
 
     return new bound_stmt_if(expr, s, s_else);
+}
+
+template<>
+bound_statement* bind_statement(stmt_function* stmt) {
+    std::vector<parameter_symbol*> v;
+    v.resize(stmt->params.size());
+
+    for (int i = 0; i < stmt->params.size(); i++) {
+        auto param = stmt->params[i];
+        std::string name = std::get<std::string>(param.ident.value.value());
+        std::string type_name = std::get<std::string>(param.type.value.value());
+        type_symbol* type = string_to_type(type_name).value();
+        v.push_back(new parameter_symbol(name, type, i));
+    }
+    
+    std::string name = std::get<std::string>(stmt->ident.value.value());
+    std::string type_name = std::get<std::string>(stmt->type.value.value());
+    type_symbol* type = string_to_type(type_name).value();
+
+    auto function = new function_symbol(name, type, v);
+    auto body = bind_statement(stmt->body);
+    return new bound_stmt_function(function, v, body);
 }

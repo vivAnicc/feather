@@ -19,6 +19,9 @@ vs lower_statement(T* t) {
     else if (auto stmt = dynamic_cast<bound_stmt_if*>(t)) {
         return lower_statement(stmt);
     }
+    else if (auto stmt = dynamic_cast<bound_stmt_function*>(t)) {
+        return lower_statement(stmt);
+    }
     else {
         return { t };
     }
@@ -76,4 +79,17 @@ vs lower_statement(bound_stmt_if* stmt) {
     res.push_back(stmt_label_end);
 
     return res;
+}
+
+template<>
+vs lower_statement(bound_stmt_function* stmt) {
+    auto label_name = get_label("function_end");
+    auto label = new bound_stmt_label(label_name);
+    auto gt = new bound_stmt_goto(label_name);
+
+    return {
+        gt,
+        stmt,
+        label,
+    };
 }

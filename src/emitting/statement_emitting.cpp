@@ -38,6 +38,9 @@ std::stringstream emit_statement(T* t) {
     else if (auto stmt = dynamic_cast<bound_stmt_gotoif*>(t)) {
         return emit_statement(stmt);
     }
+    else if (auto stmt = dynamic_cast<bound_stmt_function*>(t)) {
+        return emit_statement(stmt);
+    }
     else if (auto stmt = dynamic_cast<lowered_block_end*>(t)) {
         return emit_statement(stmt);
     }
@@ -173,6 +176,17 @@ std::stringstream emit_statement(bound_stmt_gotoif* stmt) {
         emit_line(&s, "jne " + stmt->label);
     else
         emit_line(&s, "je " + stmt->label);
+
+    return s;
+}
+
+template<>
+std::stringstream emit_statement(bound_stmt_function* stmt) {
+    std::stringstream s;
+
+    std::string label = "function_" + stmt->function->name;
+
+    emit_line(&s, label + ":");
 
     return s;
 }

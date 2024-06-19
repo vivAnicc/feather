@@ -96,6 +96,9 @@ class lexer {
                 case '%':
                     add_token(token(token_type::mod, std::string{ next() }));
                     continue;
+                case ',':
+                    add_token(token(token_type::comma, std::string{ next() }));
+                    continue;
                 case '=':
                     if (peek() == '=')
                         add_token(token(token_type::ee, std::string { next() + "" + next() }));
@@ -181,6 +184,9 @@ class lexer {
                     }
                     else if (string == "bool") {
                         add_token(token(token_type::kw_bool, string, "bool"));
+                    }
+                    else if (string == "void") {
+                        add_token(token(token_type::kw_void, string, "void"));
                     }
                     // not a keyword
                     else {

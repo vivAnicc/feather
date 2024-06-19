@@ -10,6 +10,7 @@ const std::string token_type_name[] = {
     "kw_int",
     "kw_char",
     "kw_bool",
+    "kw_void"
     "kw_label",
     "kw_goto",
     "kw_if",
@@ -31,6 +32,7 @@ const std::string token_type_name[] = {
     "fslash",
     "mod",
     "equals",
+    "comma",
     
     "ee",
     "ne",
@@ -53,6 +55,7 @@ enum class token_type : int {
     kw_int,
     kw_char,
     kw_bool,
+    kw_void,
     kw_label,
     kw_goto,
     kw_if,
@@ -74,6 +77,7 @@ enum class token_type : int {
     fslash,
     mod,
     equals,
+    comma,
 
     ee,
     ne,

@@ -15,6 +15,7 @@
 #include "stmt_label.cpp"
 #include "stmt_goto.cpp"
 #include "stmt_if.cpp"
+#include "stmt_function.cpp"
 #include "expr_binary.cpp"
 #include "term_literal.cpp"
 #include "term_paren.cpp"
@@ -95,6 +96,11 @@ class parser {
             case token_type::ident:
                 if (peek(1).value().type == token_type::equals)
                     return parse_var_ass_statement();
+            case token_type::kw_bool:
+            case token_type::kw_char:
+            case token_type::kw_int:
+            case token_type::kw_void:
+                return parse_function_statement();
             
             default:
                 return parse_expression_statement();
@@ -243,5 +249,35 @@ class parser {
             }
 
             return new stmt_if(kw, open, expr, close, stmt, kw_else, stmt_else);
+        }
+
+        std::vector<node_parameter> parse_parameter() {
+            std::vector<node_parameter> v;
+
+            while (peek().value().type != token_type::paren_close) {
+                token type = next();
+                token ident = consume(token_type::ident);
+
+                if (peek().value().type == token_type::comma) {
+                    token comma = next();
+                    v.push_back(node_parameter(type, ident, comma));
+                }
+                else {
+                    v.push_back(node_parameter(type, ident));
+                }
+            }
+
+            return v;
+        }
+
+        stmt_function* parse_function_statement() {
+            token type = next();
+            token ident = consume(token_type::ident);
+            token open = consume(token_type::paren_open);
+            auto params = parse_parameter();
+            token close = consume(token_type::paren_close);
+            auto stmt = parse_statement();
+
+            return new stmt_function(type, ident, open, params, close, stmt);
         }
 };
