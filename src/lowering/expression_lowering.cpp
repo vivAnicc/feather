@@ -19,9 +19,6 @@ bound_expression* lower_expression(T* t) {
     else if (auto stmt = dynamic_cast<bound_expr_stmt*>(t)) {
         return lower_expression(stmt);
     }
-    else if (auto stmt = dynamic_cast<bound_expr_stmt*>(t)) {
-        return lower_expression(stmt);
-    }
     else if (auto stmt = dynamic_cast<bound_expr_binary*>(t)) {
         return lower_expression(stmt);
     }

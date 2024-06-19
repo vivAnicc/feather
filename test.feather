@@ -2,10 +2,21 @@ var a = int;
 print (45);
 a = 14;
 {
-    var a = { return 32; };
+    var a = {
+        var a = int;
+        a = 65;
+        var b = 33;
+        a = a - b;
+        return a;
+    };
     {
         print (a);
     }
+}
+void test() {
+    var a = bool;
+    a = true;
+    return void;
 }
 print (a - 2);
 if (false)

@@ -154,6 +154,7 @@ class parser {
             case token_type::kw_bool:
             case token_type::kw_int:
             case token_type::kw_char:
+            case token_type::kw_void:
                 return new term_type(next());
             case token_type::kw_true:
             case token_type::kw_false:
@@ -295,9 +296,9 @@ class parser {
             token open = consume(token_type::paren_open);
             auto params = parse_parameter();
             token close = consume(token_type::paren_close);
-            auto stmt = parse_statement();
+            auto expr = parse_expression();
 
-            return new stmt_function(type, ident, open, params, close, stmt);
+            return new stmt_function(type, ident, open, params, close, expr);
         }
 
         stmt_return* parse_return_statement() {

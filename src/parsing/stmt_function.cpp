@@ -1,6 +1,7 @@
 #pragma once
 #include <optional>
 #include "statement.cpp"
+#include "expression.cpp"
 #include "../token.cpp"
 
 class node_parameter {
@@ -20,9 +21,9 @@ class stmt_function : public statement {
         token open;
         std::vector<node_parameter> params;
         token close;
-        statement* body;
+        expression* body;
 
-        stmt_function(token type, token ident, token open, std::vector<node_parameter> params, token close, statement* body)
+        stmt_function(token type, token ident, token open, std::vector<node_parameter> params, token close, expression* body)
             : type (type), ident (ident), open (open), params (params), close (close), body (body) {}
         
         virtual std::vector<node*> get_children() {

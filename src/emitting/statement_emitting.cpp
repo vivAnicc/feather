@@ -211,7 +211,7 @@ std::stringstream emit_statement(bound_stmt_function* stmt) {
     std::string label = "function_" + stmt->function->name;
 
     emit_line(&s, label + ":");
-    s << emit_statement(stmt->body).str();
+    s << emit_expression(stmt->body).str();
     emit_line(&s, "ret");
 
     return s;

@@ -188,7 +188,8 @@ bound_statement* bind_statement(stmt_function* stmt) {
     type_symbol* type = string_to_type(type_name).value();
 
     auto function = new function_symbol(name, type, v);
-    auto body = bind_statement(stmt->body);
+    current_scope->try_declare(function);
+    auto body = bind_expression(stmt->body);
     return new bound_stmt_function(function, v, body);
 }
 
