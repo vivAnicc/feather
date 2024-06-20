@@ -133,6 +133,12 @@ bound_statement* bind_statement(stmt_var_ass* stmt) {
     auto name = std::get<std::string>(stmt->ident.value.value());
     auto var = current_scope->get_variable(name);
     int offset = current_scope->get_offset(var) + 8;
+    // if (var->is_param()) {
+    //     offset = (var->offset * 8) + 8;
+    // }
+    // else {
+    //     offset = current_scope->get_offset(var) + 8;
+    // }
     auto expr = bind_expression(stmt->expr);
 
     if (var && var->type == expr->type) {
@@ -175,21 +181,30 @@ bound_statement* bind_statement(stmt_function* stmt) {
     std::vector<parameter_symbol*> v;
     v.resize(stmt->params.size());
 
+    scope_enter();
+
     for (int i = 0; i < stmt->params.size(); i++) {
         auto param = stmt->params[i];
         std::string name = std::get<std::string>(param.ident.value.value());
         std::string type_name = std::get<std::string>(param.type.value.value());
         type_symbol* type = string_to_type(type_name).value();
         v[i] = new parameter_symbol(name, type, i);
+        current_scope->try_declare(v[i]);
     }
+
+    // address for return
+    current_scope->var_offset += 8;
     
     std::string name = std::get<std::string>(stmt->ident.value.value());
     std::string type_name = std::get<std::string>(stmt->type.value.value());
     type_symbol* type = string_to_type(type_name).value();
 
     auto function = new function_symbol(name, type, v);
-    current_scope->try_declare(function);
+    current_scope->parent->try_declare(function);
     auto body = bind_expression(stmt->body);
+
+    scope_leave();
+
     return new bound_stmt_function(function, v, body);
 }
 

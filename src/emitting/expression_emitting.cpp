@@ -8,6 +8,7 @@ std::stringstream emit_statement(T* t);
 void regenerate_label();
 std::string consume_label();
 std::stringstream emit_block_end();
+std::stringstream emit_block_start();
 
 template<class T>
 std::stringstream emit_expression(T* t) {
@@ -79,8 +80,7 @@ std::stringstream emit_expression(bound_expr_binary* expr) {
     return s;
 }
 
-template<>
-std::stringstream emit_expression(bound_expr_call* expr) {
+std::stringstream emit_print(bound_expr_call* expr) {
     if (expr->function == &function_print_num) {
         std::stringstream s;
 
@@ -99,6 +99,14 @@ std::stringstream emit_expression(bound_expr_call* expr) {
         emit_line(&s, "push 10");
         emit_line(&s, "mov " + r9 + ", 8");
         emit_line(&s, "mov " + r10 + ", 10");
+        // Check for negative
+        auto check = get_label("print_neg");
+        emit_line(&s, "mov rcx, rax");
+        emit_line(&s, "cmp rax, 0");
+        emit_line(&s, "jns " + check);
+        emit_line(&s, "neg rax");
+        emit_line(&s, check + ":");
+
         emit_line(&s, label + ":");
         emit_line(&s, "xor " + rdx + ", " + rdx);
         emit_line(&s, "div " + r10);
@@ -108,6 +116,15 @@ std::stringstream emit_expression(bound_expr_call* expr) {
         emit_line(&s, "add " + r9 + ", 8");
         emit_line(&s, "cmp " + rax + ", 0");
         emit_line(&s, "jne " + label);
+
+        // Finish negative check
+        auto check1 = get_label("print_sign");
+        emit_line(&s, "cmp rcx, 0");
+        emit_line(&s, "jns " + check1);
+        emit_line(&s, "push 45");
+        emit_line(&s, "add r9, 8");
+        emit_line(&s, check1 + ":");
+
         emit_line(&s, "mov rsi, rsp");
         emit_line(&s, "mov rax, 1");
         emit_line(&s, "mov rdi, 1");
@@ -195,6 +212,30 @@ std::stringstream emit_expression(bound_expr_call* expr) {
     }
 
     return std::stringstream();
+}
+
+template<>
+std::stringstream emit_expression(bound_expr_call* expr) {
+    if (expr->function == &function_print_num ||
+        expr->function == &function_print_bool ||
+        expr->function == &function_print_char) {
+        return emit_print(expr);
+    }
+
+    std::stringstream s;
+
+    // s = emit_block_start();
+    for (const auto& param : expr->params) {
+        int size = param->type->size;
+        s << emit_expression(param).str();
+        clear_register(&s, RAX, size);
+        emit_line(&s, "push rax");
+    }
+    emit_line(&s, "call function_" + expr->function->name);
+    // emit_line(&s, "add " + STACK_POINTER + ", " + std::to_string(8 * expr->params.size()));
+    // emit_block_end();
+
+    return s;
 }
 
 template<>

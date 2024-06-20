@@ -129,17 +129,17 @@ class bound_op_binary {
                 emit_line(s, "mov " + rax + ", " + rcx);
                 break;
             case binary_operator::mul:
-                emit_line(s, "mul " + rcx);
+                emit_line(s, "imul " + rcx);
                 break;
             case binary_operator::div:
                 emit_line(s, "xor " + rdx + ", " + rdx);
                 emit_line(s, "xchg " + rcx + ", " + rax);
-                emit_line(s, "div " + rcx);
+                emit_line(s, "idiv " + rcx);
                 break;
             case binary_operator::mod:
                 emit_line(s, "xor " + rdx + ", " + rdx);
                 emit_line(s, "xchg " + rcx + ", " + rax);
-                emit_line(s, "div " + rcx);
+                emit_line(s, "idiv " + rcx);
                 emit_line(s, "mov " + rax + ", " + rdx);
                 break;
             case binary_operator::equals:

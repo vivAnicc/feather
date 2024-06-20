@@ -209,10 +209,15 @@ std::stringstream emit_statement(bound_stmt_function* stmt) {
     std::stringstream s;
 
     std::string label = "function_" + stmt->function->name;
+    auto label_name = get_label("function_end");
+    auto label_end = new bound_stmt_label(label_name);
+    auto gt = new bound_stmt_goto(label_name);
 
+    s << emit_statement(gt).str();
     emit_line(&s, label + ":");
     s << emit_expression(stmt->body).str();
     emit_line(&s, "ret");
+    s << emit_statement(label_end).str();
 
     return s;
 }

@@ -23,6 +23,7 @@
 #include "term_type.cpp"
 #include "term_var.cpp"
 #include "term_statement.cpp"
+#include "term_call.cpp"
 #include "binary_operator.cpp"
 
 class parser {
@@ -109,6 +110,7 @@ class parser {
             case token_type::ident:
                 if (peek(1).value().type == token_type::equals)
                     return parse_var_ass_statement();
+                return parse_expression_statement();
             case token_type::kw_bool:
             case token_type::kw_char:
             case token_type::kw_int:
@@ -164,6 +166,8 @@ class parser {
             case token_type::paren_open:
                 return parse_term_paren();
             case token_type::ident:
+                if (peek(1).value().type == token_type::paren_open)
+                    return parse_term_call();
                 return new term_var(next());
             case token_type::brace_open:
                 return parse_term_stmt();
@@ -186,6 +190,26 @@ class parser {
             token close = consume(token_type::brace_close);
 
             return new term_statement(open, stmts, close);
+        }
+
+        term_call* parse_term_call() {
+            token ident = consume(token_type::ident);
+            token open = consume(token_type::paren_open);
+            std::vector<param> v;
+            while (peek().value().type != token_type::paren_close) {
+                auto expr = parse_expression();
+                if (peek().value().type == token_type::comma) {
+                    token comma = consume(token_type::comma);
+                    v.push_back(param(expr, comma));
+                }
+                else {
+                    v.push_back(param(expr, std::nullopt));
+                    break;
+                }
+            }
+            token close = consume(token_type::paren_close);
+
+            return new term_call(ident, open, v, close);
         }
 
         stmt_exit* parse_exit_statement() {
@@ -297,8 +321,9 @@ class parser {
             auto params = parse_parameter();
             token close = consume(token_type::paren_close);
             auto expr = parse_expression();
+            token semi = consume(token_type::semi);
 
-            return new stmt_function(type, ident, open, params, close, expr);
+            return new stmt_function(type, ident, open, params, close, expr, semi);
         }
 
         stmt_return* parse_return_statement() {

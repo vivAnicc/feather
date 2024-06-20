@@ -1,30 +1,9 @@
-var a = int;
-print (45);
-a = 14;
-{
-    var a = {
-        var a = int;
-        a = 65;
-        var b = 33;
-        a = a - b;
-        return a;
-    };
-    {
-        print (a);
-    }
-}
-void test() {
-    var a = bool;
-    a = true;
-    return void;
-}
-print (a - 2);
-if (false)
-    print (a);
-else if (false) {
+int test(int b) {
+    var c = 43;
+    return b - 30;
+};
 
-    print (a / 2);
-}
-else
-print (a * 2);
+var a = 1;
+print(test(a));
+print(test(2));
 exit 0;

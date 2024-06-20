@@ -12,7 +12,7 @@ class type_symbol : public symbol {
             : symbol (name), size (size), is_pointer (is_pointer) {}
 };
 
-type_symbol type_int = type_symbol("int", 4);
+type_symbol type_int = type_symbol("int", 8);
 type_symbol type_char = type_symbol("char", 2);
 type_symbol type_bool = type_symbol("bool", 2);
 type_symbol type_string = type_symbol("string", type_char.size, true);

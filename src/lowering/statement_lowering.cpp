@@ -101,17 +101,10 @@ vs lower_statement(bound_stmt_if* stmt) {
 
 template<>
 vs lower_statement(bound_stmt_function* stmt) {
-    auto label_name = get_label("function_end");
-    auto label = new bound_stmt_label(label_name);
-    auto gt = new bound_stmt_goto(label_name);
     auto expr = lower_expression(stmt->body);
     auto s = new bound_stmt_function(stmt->function, stmt->params, expr);
 
-    return {
-        gt,
-        s,
-        label,
-    };
+    return { s };
 }
 
 template<>

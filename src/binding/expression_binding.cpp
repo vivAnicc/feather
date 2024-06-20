@@ -34,6 +34,9 @@ bound_expression* bind_expression(T* t) {
     else if (auto expr = dynamic_cast<term_statement*>(t)) {
         return bind_expression(expr);
     }
+    else if (auto expr = dynamic_cast<term_call*>(t)) {
+        return bind_expression(expr);
+    }
     else {
         std::cerr << "Expression node not recognized!" << std::endl;
         return new bound_expr_error;
@@ -90,6 +93,12 @@ bound_expression* bind_expression(term_var* expr) {
     auto name = std::get<std::string>(expr->ident.value.value());
     auto var = current_scope->get_variable(name);
     int offset = current_scope->get_offset(var) + 8;
+    // if (var->is_param()) {
+    //     offset = (var->offset * 8) + 8;
+    // }
+    // else {
+    //     offset = current_scope->get_offset(var) + 8;
+    // }
 
     if (var) {
         return new bound_expr_var(var, offset);
@@ -116,4 +125,16 @@ bound_expression* bind_expression(term_statement* expr) {
     scope_leave();
 
     return new bound_expr_stmt(type, v);
+}
+
+template<>
+bound_expression* bind_expression(term_call* expr) {
+    std::string name = std::get<std::string>(expr->ident.value.value());
+    auto fun = current_scope->get_function(name);
+    std::vector<bound_expression*> v;
+    for (const auto& param : expr->params) {
+        v.push_back(bind_expression(param.expr));
+    }
+
+    return new bound_expr_call(fun, v);
 }

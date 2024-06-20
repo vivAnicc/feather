@@ -22,9 +22,10 @@ class stmt_function : public statement {
         std::vector<node_parameter> params;
         token close;
         expression* body;
+        token semi;
 
-        stmt_function(token type, token ident, token open, std::vector<node_parameter> params, token close, expression* body)
-            : type (type), ident (ident), open (open), params (params), close (close), body (body) {}
+        stmt_function(token type, token ident, token open, std::vector<node_parameter> params, token close, expression* body, token semi)
+            : type (type), ident (ident), open (open), params (params), close (close), body (body), semi (semi) {}
         
         virtual std::vector<node*> get_children() {
             return { body };
