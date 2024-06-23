@@ -8,9 +8,14 @@ push rbp
 mov rbp, rsp
 mov rax, 43
 push rax
-mov rax, [rbp - -16]
+lea rax, [rbp - 8]
 push rax
 mov rax, 30
+pop rcx
+mov [rcx], rax
+mov rax, [rbp - -16]
+push rax
+mov rax, [rbp - 8]
 pop rcx
 sub rcx, rax
 mov rax, rcx

@@ -51,6 +51,13 @@ bound_expression* bind_expression(expr_binary* expr) {
         return new bound_expr_error;
     }
 
+    if (expr->op == binary_operator::assign) {
+        if (!dynamic_cast<bound_lvalue*>(left)) {
+            std::cerr << "Invalid lvalue" << std::endl;
+            return new bound_expr_error;
+        }
+    }
+
     auto right = bind_expression(expr->right);
 
     if (is_error(right)) {

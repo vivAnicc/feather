@@ -107,14 +107,11 @@ class parser {
                 return parse_goto_statement();
             case token_type::kw_if:
                 return parse_if_statement();
-            case token_type::ident:
-                if (peek(1).value().type == token_type::equals)
-                    return parse_var_ass_statement();
-                return parse_expression_statement();
-            case token_type::kw_bool:
-            case token_type::kw_char:
-            case token_type::kw_int:
-            case token_type::kw_void:
+            // case token_type::ident:
+            //     if (peek(1).value().type == token_type::equals)
+            //         return parse_var_ass_statement();
+            //     return parse_expression_statement();
+            case token_type::kw_function:
                 return parse_function_statement();
             case token_type::kw_return:
                 return parse_return_statement();
@@ -315,7 +312,7 @@ class parser {
         }
 
         stmt_function* parse_function_statement() {
-            token type = next();
+            token function = consume(token_type::kw_function);
             token ident = consume(token_type::ident);
             token open = consume(token_type::paren_open);
             auto params = parse_parameter();
@@ -323,7 +320,7 @@ class parser {
             auto expr = parse_expression();
             token semi = consume(token_type::semi);
 
-            return new stmt_function(type, ident, open, params, close, expr, semi);
+            return new stmt_function(function, ident, open, params, close, expr, semi);
         }
 
         stmt_return* parse_return_statement() {

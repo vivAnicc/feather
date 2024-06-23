@@ -26,7 +26,9 @@ class bound_op_binary {
         
         // left is in RCX, right is in RAX
         void emit(std::stringstream* s) {
-            if (left == &type_int && right == &type_int)
+            if (op == binary_operator::assign)
+                emit_assign(s);
+            else if (left == &type_int && right == &type_int)
                 emit_ints(s);
             else if (left == &type_bool && right == &type_bool)
                 emit_bools(s);
@@ -35,6 +37,9 @@ class bound_op_binary {
         }
 
     private:
+        void emit_assign(std::stringstream* s) {
+            emit_line(s, "mov [rcx], rax");
+        } 
         void emit_chars(std::stringstream* s) {
             int op_size = left->size;
 
@@ -233,6 +238,14 @@ auto valid_binary_operator_list = {
         binary_operator::mod,
         {
             bound_op_binary(binary_operator::mod, &type_int),
+        }
+    ),
+    std::make_pair<binary_operator, std::vector<bound_op_binary>> (
+        binary_operator::assign,
+        {
+            bound_op_binary(binary_operator::assign, &type_int),
+            bound_op_binary(binary_operator::assign, &type_bool),
+            bound_op_binary(binary_operator::assign, &type_char),
         }
     ),
     std::make_pair<binary_operator, std::vector<bound_op_binary>> (

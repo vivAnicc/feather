@@ -74,6 +74,8 @@ int main(int argc, char* argv[]) {
     binder binder(statements);
     auto bound_statement = binder.bind();
 
+    // print_node(bound_statement);
+
     lowerer lowerer(bound_statement);
     auto bound_statements = lowerer.lower();
 

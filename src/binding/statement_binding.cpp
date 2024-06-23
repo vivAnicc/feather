@@ -196,12 +196,10 @@ bound_statement* bind_statement(stmt_function* stmt) {
     current_scope->var_offset += 8;
     
     std::string name = std::get<std::string>(stmt->ident.value.value());
-    std::string type_name = std::get<std::string>(stmt->type.value.value());
-    type_symbol* type = string_to_type(type_name).value();
 
-    auto function = new function_symbol(name, type, v);
-    current_scope->parent->try_declare(function);
     auto body = bind_expression(stmt->body);
+    auto function = new function_symbol(name, body->type, v);
+    current_scope->parent->try_declare(function);
 
     scope_leave();
 

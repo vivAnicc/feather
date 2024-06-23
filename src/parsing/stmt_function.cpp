@@ -16,7 +16,7 @@ class node_parameter {
 
 class stmt_function : public statement {
     public:
-        token type;
+        token function;
         token ident;
         token open;
         std::vector<node_parameter> params;
@@ -24,8 +24,8 @@ class stmt_function : public statement {
         expression* body;
         token semi;
 
-        stmt_function(token type, token ident, token open, std::vector<node_parameter> params, token close, expression* body, token semi)
-            : type (type), ident (ident), open (open), params (params), close (close), body (body), semi (semi) {}
+        stmt_function(token function, token ident, token open, std::vector<node_parameter> params, token close, expression* body, token semi)
+            : function (function), ident (ident), open (open), params (params), close (close), body (body), semi (semi) {}
         
         virtual std::vector<node*> get_children() {
             return { body };
@@ -34,7 +34,7 @@ class stmt_function : public statement {
     protected:
         virtual std::vector<token> list_tokens() {
             std::vector<token> v {
-                type,
+                function,
                 ident,
                 open,
             };

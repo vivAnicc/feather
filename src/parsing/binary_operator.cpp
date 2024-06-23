@@ -18,6 +18,8 @@ enum class binary_operator : int {
     
     logic_and,
     logic_or,
+
+    assign,
 };
 
 const std::optional<binary_operator> token_to_bin_op(const token_type& token) {
@@ -49,6 +51,8 @@ const std::optional<binary_operator> token_to_bin_op(const token_type& token) {
         return binary_operator::logic_and;
     case token_type::_or:
         return binary_operator::logic_or;
+    case token_type::equals:
+        return binary_operator::assign;
     
     default:
         return std::nullopt;
@@ -76,6 +80,8 @@ const int bin_op_prec(const binary_operator& op) {
         return 3;
     case binary_operator::logic_or:
         return 2;
+    case binary_operator::assign:
+        return 1;
     
     default:
         return 0;
@@ -85,6 +91,9 @@ const int bin_op_prec(const binary_operator& op) {
 const bool bin_op_is_left_assoc(const binary_operator& op) {
     switch (op)
     {
+    case binary_operator::assign:
+        return false;
+        
     default:
         return true;
     }

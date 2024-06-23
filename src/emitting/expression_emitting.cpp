@@ -71,7 +71,14 @@ template<>
 std::stringstream emit_expression(bound_expr_binary* expr) {
     std::stringstream s;
 
-    s = emit_expression(expr->left);
+    if (expr->op.op == binary_operator::assign) {
+        auto lvalue = dynamic_cast<bound_lvalue*>(expr->left);
+        emit_line(&s, "lea rax, [" + lvalue->get_address() + "]");
+    }
+    else {
+        s = emit_expression(expr->left);
+    }
+
     emit_line(&s, "push rax");
     s << emit_expression(expr->right).str();
     emit_line(&s, "pop rcx");
@@ -261,7 +268,7 @@ std::stringstream emit_expression(bound_expr_var* expr) {
     // int offset = expr->var->offset + 8;
     int offset = expr->offset;
 
-    emit_line(&s, "mov rax, [" + STACK_COUNTER + " - " + std::to_string(offset) + "]");
+    emit_line(&s, "mov rax, [" + expr->get_address() + "]");
     clear_register(&s, RAX, size);
 
     return s;

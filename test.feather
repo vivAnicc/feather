@@ -1,6 +1,7 @@
-int test(int b) {
+function test(int b) {
     var c = 43;
-    return b - 30;
+    c = 30;
+    return b - c;
 };
 
 var a = 1;
