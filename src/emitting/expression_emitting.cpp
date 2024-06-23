@@ -22,6 +22,9 @@ std::stringstream emit_expression(T* t) {
     else if (auto expr = dynamic_cast<bound_expr_binary*>(t)) {
         return emit_expression(expr);
     }
+    else if (auto expr = dynamic_cast<bound_expr_unary*>(t)) {
+        return emit_expression(expr);
+    }
     else if (auto expr = dynamic_cast<bound_expr_call*>(t)) {
         return emit_expression(expr);
     }
@@ -82,6 +85,16 @@ std::stringstream emit_expression(bound_expr_binary* expr) {
     emit_line(&s, "push rax");
     s << emit_expression(expr->right).str();
     emit_line(&s, "pop rcx");
+    expr->op.emit(&s);
+
+    return s;
+}
+
+template<>
+std::stringstream emit_expression(bound_expr_unary* expr) {
+    std::stringstream s;
+
+    s = emit_expression(expr->operand);
     expr->op.emit(&s);
 
     return s;

@@ -44,6 +44,7 @@ const std::string token_type_name[] = {
     "le",
     "or",
     "and",
+    "not",
 
     "ERROR",
 };
@@ -91,6 +92,7 @@ enum class token_type : int {
     le,
     _or,
     _and,
+    _not,
 
     error,
 };

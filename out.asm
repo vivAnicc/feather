@@ -14,11 +14,13 @@ mov rax, 30
 pop rcx
 mov [rcx], rax
 mov rax, [rbp - -16]
+neg rax
 push rax
 mov rax, [rbp - 8]
+neg rax
+neg rax
 pop rcx
-sub rcx, rax
-mov rax, rcx
+add rax, rcx
 jmp end_label1
 end_label1:
 mov rsp, rbp

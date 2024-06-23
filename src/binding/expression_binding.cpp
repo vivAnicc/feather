@@ -5,6 +5,7 @@
 #include "bound_expr_term.cpp"
 #include "bound_expr_error.cpp"
 #include "bound_expr_binary.cpp"
+#include "bound_expr_unary.cpp"
 #include "bound_expr_type.cpp"
 #include "bound_expr_var.cpp"
 #include "bound_expr_stmt.cpp"
@@ -17,6 +18,9 @@ bound_expression* bind_expression(T* t) {
         return new bound_expr_error;
     }
     if (auto expr = dynamic_cast<expr_binary*>(t)) {
+        return bind_expression(expr);
+    }
+    else if (auto expr = dynamic_cast<expr_unary*>(t)) {
         return bind_expression(expr);
     }
     else if (auto expr = dynamic_cast<term_literal*>(t)) {
@@ -71,6 +75,23 @@ bound_expression* bind_expression(expr_binary* expr) {
     }
 
     return new bound_expr_binary(left, right, op.value());
+}
+
+template<>
+bound_expression* bind_expression(expr_unary* expr) {
+    auto operand = bind_expression(expr->operand);
+
+    if (is_error(operand)) {
+        return new bound_expr_error;
+    }
+
+    auto op = bind_unary_operator(expr->op, operand->type);
+
+    if (!op.has_value()) {
+        return new bound_expr_error;
+    }
+
+    return new bound_expr_unary(operand, op.value());
 }
 
 template<>

@@ -22,6 +22,9 @@ bound_expression* lower_expression(T* t) {
     else if (auto stmt = dynamic_cast<bound_expr_binary*>(t)) {
         return lower_expression(stmt);
     }
+    else if (auto stmt = dynamic_cast<bound_expr_unary*>(t)) {
+        return lower_expression(stmt);
+    }
     else if (auto stmt = dynamic_cast<bound_expr_call*>(t)) {
         return lower_expression(stmt);
     }
@@ -51,6 +54,13 @@ bound_expression* lower_expression(bound_expr_binary* expr) {
     auto right = lower_expression(expr->right);
 
     return new bound_expr_binary(left, right, expr->op);
+}
+
+template<>
+bound_expression* lower_expression(bound_expr_unary* expr) {
+    auto operand = lower_expression(expr->operand);
+
+    return new bound_expr_unary(operand, expr->op);
 }
 
 template<>

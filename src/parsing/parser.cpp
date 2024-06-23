@@ -18,6 +18,7 @@
 #include "stmt_function.cpp"
 #include "stmt_return.cpp"
 #include "expr_binary.cpp"
+#include "expr_unary.cpp"
 #include "term_literal.cpp"
 #include "term_paren.cpp"
 #include "term_type.cpp"
@@ -25,6 +26,7 @@
 #include "term_statement.cpp"
 #include "term_call.cpp"
 #include "binary_operator.cpp"
+#include "unary_operator.cpp"
 
 class parser {
     std::vector<token> tokens;
@@ -123,7 +125,17 @@ class parser {
 
         expression* parse_expression(int min_prec = 0) {
             expression* left;
-            left = parse_term().value();
+            auto unary_op = token_to_unary_op(peek().value().type);
+            int unary_prec = 7;
+            if (unary_op.has_value() && unary_prec >= min_prec) {
+                token unary = next();
+                int next_prec = unary_prec;
+                auto operand = parse_expression(next_prec);
+                left = new expr_unary(operand, unary, unary_op.value());
+            }
+            else {
+                left = parse_term().value();
+            }
 
             while (true)
             {
