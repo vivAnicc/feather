@@ -62,7 +62,10 @@ bound_expression* bind_expression(expr_binary* expr) {
         }
     }
 
+    // Count for push
+    current_scope->var_offset += 8;
     auto right = bind_expression(expr->right);
+    current_scope->var_offset -= 8;
 
     if (is_error(right)) {
         return new bound_expr_error;

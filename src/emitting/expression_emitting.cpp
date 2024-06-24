@@ -109,6 +109,7 @@ std::stringstream emit_print(bound_expr_call* expr) {
         auto r10 = get_register(R10, size);
         auto rdx = get_register(RDX, size);
         auto rax = get_register(RAX, size);
+        auto rcx = get_register(RCX, size);
         auto rsp = get_register(RSP, size);
         auto label = get_label("print_loop");
 
@@ -122,9 +123,9 @@ std::stringstream emit_print(bound_expr_call* expr) {
         // Check for negative
         auto check = get_label("print_neg");
         emit_line(&s, "mov rcx, rax");
-        emit_line(&s, "cmp rax, 0");
+        emit_line(&s, "cmp " + rax + ", 0");
         emit_line(&s, "jns " + check);
-        emit_line(&s, "neg rax");
+        emit_line(&s, "neg " + rax);
         emit_line(&s, check + ":");
 
         emit_line(&s, label + ":");
@@ -139,7 +140,7 @@ std::stringstream emit_print(bound_expr_call* expr) {
 
         // Finish negative check
         auto check1 = get_label("print_sign");
-        emit_line(&s, "cmp rcx, 0");
+        emit_line(&s, "cmp " + rcx + ", 0");
         emit_line(&s, "jns " + check1);
         emit_line(&s, "push 45");
         emit_line(&s, "add r9, 8");

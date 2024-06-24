@@ -1,7 +1,7 @@
 function test(int b) {
     var c = 43;
     c = 30;
-    return -b + --c;
+    return b + -c;
 };
 
 var a = 1;
