@@ -118,10 +118,11 @@ class lexer {
                         add_token(token(token_type::lt, std::string { next() }));
                     continue;
                 case '!':
-                    if (peek() == '=') {
+                    if (peek() == '=')
                         add_token(token(token_type::ne, std::string { next() + "" + next() }));
-                        continue;
-                    }
+                    else
+                        add_token(token(token_type::_not, std::string { next() }));
+                    continue;
                 case '&':
                     if (peek() == '&') {
                         add_token(token(token_type::_and, std::string { next() + "" + next() }));

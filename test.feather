@@ -7,4 +7,7 @@ function test(int b) {
 var a = 1;
 print(test(a));
 print(test(2));
+if (!false) {
+    print('a');
+}
 exit 0;

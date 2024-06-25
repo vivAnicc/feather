@@ -2,7 +2,7 @@ global _start
 _start:
 push rbp
 mov rbp, rsp
-jmp function_end0
+jmp function_end1
 function_test:
 push rbp
 mov rbp, rsp
@@ -22,12 +22,12 @@ and rax, -1
 neg eax
 pop rcx
 add eax, ecx
-jmp end_label1
-end_label1:
+jmp end_label2
+end_label2:
 mov rsp, rbp
 pop rbp
 ret
-function_end0:
+function_end1:
 mov eax, 1
 and rax, -1
 push rax
@@ -42,10 +42,10 @@ mov r9d, 8
 mov r10d, 10
 mov rcx, rax
 cmp eax, 0
-jns print_neg5
+jns print_neg6
 neg eax
-print_neg5:
-print_loop4:
+print_neg6:
+print_loop5:
 xor edx, edx
 div r10d
 add edx, 48
@@ -53,12 +53,12 @@ and rdx, -1
 push rdx
 add r9d, 8
 cmp eax, 0
-jne print_loop4
+jne print_loop5
 cmp ecx, 0
-jns print_sign6
+jns print_sign7
 push 45
 add r9, 8
-print_sign6:
+print_sign7:
 mov rsi, rsp
 mov rax, 1
 mov rdi, 1
@@ -78,10 +78,10 @@ mov r9d, 8
 mov r10d, 10
 mov rcx, rax
 cmp eax, 0
-jns print_neg8
+jns print_neg9
 neg eax
-print_neg8:
-print_loop7:
+print_neg9:
+print_loop8:
 xor edx, edx
 div r10d
 add edx, 48
@@ -89,12 +89,12 @@ and rdx, -1
 push rdx
 add r9d, 8
 cmp eax, 0
-jne print_loop7
+jne print_loop8
 cmp ecx, 0
-jns print_sign9
+jns print_sign10
 push 45
 add r9, 8
-print_sign9:
+print_sign10:
 mov rsi, rsp
 mov rax, 1
 mov rdi, 1
@@ -104,6 +104,31 @@ syscall
 and r9, -1
 add rsp, r9
 ; print end
+mov ax, 0
+cmp ax, 0
+mov cx, 1
+cmovz ax, cx
+mov cx, 0
+cmovnz ax, cx
+cmp ax, 0
+je if_end0
+push rbp
+mov rbp, rsp
+mov ax, 97
+; print start
+push 10
+and rax, 0xFFFF
+push rax
+mov rsi, rsp
+mov rax, 1
+mov rdi, 1
+mov rdx, 16
+syscall
+add rsp, 16
+; print end
+mov rsp, rbp
+pop rbp
+if_end0:
 mov eax, 0
 mov edi, eax
 mov rax, 60

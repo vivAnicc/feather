@@ -23,6 +23,7 @@ class bound_op_unary {
         void emit(std::stringstream* s) {
             int size = operand->size;
             auto rax = get_register(RAX, size);
+            auto rcx = get_register(RCX, size);
 
             switch (op)
             {
@@ -30,7 +31,11 @@ class bound_op_unary {
                 emit_line(s, "neg " + rax);
                 break;
             case unary_operator::logic_not:
-                emit_line(s, "not " + rax);
+                emit_line(s, "cmp " + rax + ", 0");
+                emit_line(s, "mov " + rcx + ", 1");
+                emit_line(s, "cmovz " + rax + ", " + rcx);
+                emit_line(s, "mov " + rcx + ", 0");
+                emit_line(s, "cmovnz " + rax + ", " + rcx);
                 break;
             
             default:
