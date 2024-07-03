@@ -1,5 +1,6 @@
 #pragma once
 #include <variant>
+#include <optional>
 #include "binder.cpp"
 #include "bound_expression.cpp"
 #include "bound_expr_term.cpp"
@@ -10,6 +11,7 @@
 #include "bound_expr_var.cpp"
 #include "bound_expr_stmt.cpp"
 #include "bound_op_binary.cpp"
+#include "bound_stmt_expr.cpp"
 
 template<class T>
 bound_expression* bind_expression(T* t) {
@@ -148,6 +150,7 @@ bound_expression* bind_expression(term_statement* expr) {
     for (const auto& s : expr->statements) {
         auto bs = bind_statement(s);
         v.push_back(bs);
+        bound_node* n;
         if (auto ret = try_get<bound_stmt_return>(bs)) {
             type = ret->expr->type;
         }
@@ -156,6 +159,17 @@ bound_expression* bind_expression(term_statement* expr) {
     scope_leave();
 
     return new bound_expr_stmt(type, v);
+}
+
+std::optional<bound_stmt_return*> find_return(bound_node* n) {
+    bound_stmt_return* ret;
+    if (ret = try_get<bound_stmt_return*>(n))
+        return ret;
+    if (auto expr = try_get<bound_expr_stmt*>(n))
+        return std::nullopt;
+    if (auto stmt = try_get<bound_stmt_expr*(n)) {
+        for (const auto child : stmt.)
+    }
 }
 
 template<>
