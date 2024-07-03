@@ -11,7 +11,7 @@
 #include "bound_expr_var.cpp"
 #include "bound_expr_stmt.cpp"
 #include "bound_op_binary.cpp"
-#include "bound_stmt_expr.cpp"
+#include "bound_stmt_block.cpp"
 
 template<class T>
 bound_expression* bind_expression(T* t) {
@@ -151,9 +151,12 @@ bound_expression* bind_expression(term_statement* expr) {
         auto bs = bind_statement(s);
         v.push_back(bs);
         bound_node* n;
-        if (auto ret = try_get<bound_stmt_return>(bs)) {
+        if (auto ret = find_return(bs)) {
             type = ret->expr->type;
         }
+        // if (auto ret = try_get<bound_stmt_return>(bs)) {
+        //    type = ret->expr->type;
+        //}
     }
 
     scope_leave();
@@ -161,15 +164,20 @@ bound_expression* bind_expression(term_statement* expr) {
     return new bound_expr_stmt(type, v);
 }
 
-std::optional<bound_stmt_return*> find_return(bound_node* n) {
+bound_stmt_return* find_return(bound_node* n) {
     bound_stmt_return* ret;
     if (ret = try_get<bound_stmt_return*>(n))
         return ret;
     if (auto expr = try_get<bound_expr_stmt*>(n))
-        return std::nullopt;
-    if (auto stmt = try_get<bound_stmt_expr*(n)) {
-        for (const auto child : stmt.)
+        return nullptr;
+    if (auto stmt = try_get<bound_stmt_block*(n)) {
+        for (const auto child : stmt.get_children()) {
+            if (ret = find_return(child))
+                return ret;
+        }
     }
+    
+    return nullptr;
 }
 
 template<>
