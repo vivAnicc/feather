@@ -41,7 +41,7 @@ vs lower_statement(T* t) {
         return lower_statement(stmt);
     }
     else {
-        std::vector<bound_node*> children = t.get_children();
+        std::vector<bound_node*> children = t->get_children();
         for (const auto child : children) {
             if (auto expr = dynamic_cast<bound_expression*>(child)) {
                 *expr = *lower_expression(expr);

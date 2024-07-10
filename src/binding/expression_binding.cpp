@@ -49,6 +49,22 @@ bound_expression* bind_expression(T* t) {
     }
 }
 
+bound_stmt_return* find_return(bound_node* n) {
+    bound_stmt_return* ret;
+    if (ret = try_get<bound_stmt_return>(n))
+        return ret;
+    if (auto expr = try_get<bound_expr_stmt>(n))
+        return nullptr;
+    if (auto stmt = try_get<bound_stmt_block>(n)) {
+        for (const auto child : stmt->get_children()) {
+            if (ret = find_return(child))
+                return ret;
+        }
+    }
+    
+    return nullptr;
+}
+
 template<>
 bound_expression* bind_expression(expr_binary* expr) {
     auto left = bind_expression(expr->left);
@@ -162,22 +178,6 @@ bound_expression* bind_expression(term_statement* expr) {
     scope_leave();
 
     return new bound_expr_stmt(type, v);
-}
-
-bound_stmt_return* find_return(bound_node* n) {
-    bound_stmt_return* ret;
-    if (ret = try_get<bound_stmt_return*>(n))
-        return ret;
-    if (auto expr = try_get<bound_expr_stmt*>(n))
-        return nullptr;
-    if (auto stmt = try_get<bound_stmt_block*(n)) {
-        for (const auto child : stmt.get_children()) {
-            if (ret = find_return(child))
-                return ret;
-        }
-    }
-    
-    return nullptr;
 }
 
 template<>
