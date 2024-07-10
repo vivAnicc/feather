@@ -7,7 +7,7 @@ class pointer_symbol : public type_symbol {
         type_symbol* base;
 
         pointer_symbol(type_symbol* base)
-            : type_symbol(name + "*", 8, true), base (base) {}
+            : type_symbol(base->name + "*", 8, true), base (base) {}
 };
 
 std::map<type_symbol*, pointer_symbol*> ptr_map;

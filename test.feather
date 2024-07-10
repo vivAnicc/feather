@@ -4,7 +4,9 @@ function test(int b) {
     return b + -c;
 };
 
+var b = int*;
 var a = 1;
+var c = type(a - 1);
 print(test(a));
 print(test(2));
 if (!false) {

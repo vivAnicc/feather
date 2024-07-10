@@ -3,7 +3,7 @@ _start:
 ;; 19lowered_block_start
 push rbp
 mov rbp, rsp
-sub rsp, 20
+sub rsp, 32
 ;; 19bound_stmt_function
 jmp function_end1
 function_test_int:
@@ -34,11 +34,15 @@ pop rbp
 ret
 function_end1:
 ;; 18bound_stmt_var_dec
+mov qword [rbp - 8], rax
+;; 18bound_stmt_var_dec
 mov eax, 1
-mov dword [rbp - 4], eax
+mov dword [rbp - 12], eax
+;; 18bound_stmt_var_dec
+mov dword [rbp - 16], eax
 ;; 15bound_stmt_expr
 push rbp
-mov eax, dword [rbp - 4]
+mov eax, dword [rbp - 12]
 mov dword [rsp - 4], eax
 mov rbp, rsp
 sub rsp, 4

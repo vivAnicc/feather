@@ -27,6 +27,10 @@ void emit_line(std::stringstream* stream, std::string line) {
 #define STACK_COUNTER std::string("rbp")
 
 std::string get_register(int num, int size) {
+    if (size > 8)
+        return "TOO_BIG";
+    while (size != 1 && size != 2 && size != 4 && size != 8)
+        size++;
     switch (num)
     {
     case 0:
@@ -237,12 +241,18 @@ std::string get_register(int num, int size) {
             return "r15b";
         }
         break;
+    default:
+        return "NOT_A_REGISTER";
     }
 
-    return "INVALID";
+    return "ERROR!";
 }
 
 std::string get_size(int size) {
+    if (size > 8)
+        return "TOO_BIG";
+    while (size != 1 && size != 2 && size != 4 && size != 8)
+        size++;
     switch (size)
     {
     case 8:
