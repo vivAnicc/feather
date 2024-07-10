@@ -81,9 +81,11 @@ bound_expression* bind_expression(expr_binary* expr) {
     }
 
     // Count for push
-    current_scope->var_offset += 8;
+    // current_scope->var_offset += 8;
+    int t = get_temp_var(8);
     auto right = bind_expression(expr->right);
-    current_scope->var_offset -= 8;
+    remove_temp_var(8);
+    // current_scope->var_offset -= 8;
 
     if (is_error(right)) {
         return new bound_expr_error;
@@ -95,7 +97,7 @@ bound_expression* bind_expression(expr_binary* expr) {
         return new bound_expr_error;
     }
 
-    return new bound_expr_binary(left, right, op.value());
+    return new bound_expr_binary(left, right, op.value(), t, current_scope);
 }
 
 template<>
@@ -141,7 +143,7 @@ template<>
 bound_expression* bind_expression(term_var* expr) {
     auto name = std::get<std::string>(expr->ident.value.value());
     auto var = current_scope->get_variable(name);
-    int offset = current_scope->get_offset(var) + 8;
+    // int offset = current_scope->get_offset(var) + 8;
     // if (var->is_param()) {
     //     offset = (var->offset * 8) + 8;
     // }
@@ -150,7 +152,7 @@ bound_expression* bind_expression(term_var* expr) {
     // }
 
     if (var) {
-        return new bound_expr_var(var, offset);
+        return new bound_expr_var(var, current_scope);
     }
 
     return new bound_expr_error;
@@ -175,9 +177,9 @@ bound_expression* bind_expression(term_statement* expr) {
         //}
     }
 
-    scope_leave();
+    auto scope = scope_leave();
 
-    return new bound_expr_stmt(type, v);
+    return new bound_expr_stmt(type, v, scope);
 }
 
 template<>

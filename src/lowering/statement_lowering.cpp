@@ -34,9 +34,6 @@ vs lower_statement(T* t) {
     else if (auto stmt = dynamic_cast<bound_stmt_return*>(t)) {
         return lower_statement(stmt);
     }
-    else if (auto stmt = dynamic_cast<bound_stmt_var_ass*>(t)) {
-        return lower_statement(stmt);
-    }
     else if (auto stmt = dynamic_cast<bound_stmt_var_dec*>(t)) {
         return lower_statement(stmt);
     }
@@ -55,7 +52,7 @@ template<>
 vs lower_statement(bound_stmt_block* stmt) {
     vs v;
 
-    v.push_back(new lowered_block_start);
+    v.push_back(new lowered_block_start(stmt->scope));
 
     for (const auto& s : stmt->statements) {
         auto res = lower_statement(s);
@@ -139,13 +136,6 @@ vs lower_statement(bound_stmt_return* stmt) {
     auto expr = lower_expression(stmt->expr);
 
     return { new bound_stmt_return(expr) };
-}
-
-template<>
-vs lower_statement(bound_stmt_var_ass* stmt) {
-    auto expr = lower_expression(stmt->expr);
-
-    return { new bound_stmt_var_ass(stmt->var, expr, stmt->offset) };
 }
 
 template<>

@@ -6,9 +6,10 @@
 class bound_expr_stmt : public bound_expression {
     public:
         std::vector<bound_statement*> statements;
+        bound_scope* scope;
 
-        bound_expr_stmt(type_symbol* type, std::vector<bound_statement*> statements)
-            : bound_expression (type), statements (statements) {}
+        bound_expr_stmt(type_symbol* type, std::vector<bound_statement*> statements, bound_scope* scope)
+            : bound_expression (type), statements (statements), scope (scope) {}
         
         virtual std::vector<bound_node*> get_children() {
             return std::vector<bound_node*>(statements.begin(), statements.end());

@@ -37,7 +37,7 @@ template<>
 bound_expression* lower_expression(bound_expr_stmt* expr) {
     std::vector<bound_statement*> s;
 
-    s.push_back(new lowered_block_start);
+    s.push_back(new lowered_block_start(expr->scope));
     for (const auto& stmt : expr->statements) {
         auto res = lower_statement(stmt);
         s.insert(s.end(), res.begin(), res.end());
@@ -45,7 +45,7 @@ bound_expression* lower_expression(bound_expr_stmt* expr) {
     // done in emitting
     // s.push_back(new lowered_block_end);
 
-    return new bound_expr_stmt(expr->type, s);
+    return new bound_expr_stmt(expr->type, s, expr->scope);
 }
 
 template<>
@@ -53,7 +53,7 @@ bound_expression* lower_expression(bound_expr_binary* expr) {
     auto left = lower_expression(expr->left);
     auto right = lower_expression(expr->right);
 
-    return new bound_expr_binary(left, right, expr->op);
+    return new bound_expr_binary(left, right, expr->op, expr->temp, expr->scope);
 }
 
 template<>

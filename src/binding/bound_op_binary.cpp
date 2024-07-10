@@ -38,8 +38,12 @@ class bound_op_binary {
 
     private:
         void emit_assign(std::stringstream* s) {
-            emit_line(s, "mov [rcx], rax");
-        } 
+            int size = right->size;
+            auto rax = get_register(RAX, size);
+            auto ptr = get_size(size);
+
+            emit_line(s, "mov " + ptr + " [rcx], " + rax);
+        }
         void emit_chars(std::stringstream* s) {
             int op_size = left->size;
 

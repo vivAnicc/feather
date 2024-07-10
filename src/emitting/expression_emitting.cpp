@@ -82,9 +82,11 @@ std::stringstream emit_expression(bound_expr_binary* expr) {
         s = emit_expression(expr->left);
     }
 
-    emit_line(&s, "push rax");
+    // emit_line(&s, "push rax");
+    emit_line(&s, "mov qword [rbp - " + std::to_string(expr->scope->var_size + expr->temp) + "], rax");
     s << emit_expression(expr->right).str();
-    emit_line(&s, "pop rcx");
+    emit_line(&s, "mov rcx, qword [rbp - " + std::to_string(expr->scope->var_size + expr->temp) + "]");
+    // emit_line(&s, "pop rcx");
     expr->op.emit(&s);
 
     return s;
@@ -250,6 +252,7 @@ std::stringstream emit_expression(bound_expr_call* expr) {
         int size = param->type->size;
         s << emit_expression(param).str();
         clear_register(&s, RAX, size);
+        // TODO: dont push
         emit_line(&s, "push rax");
     }
     emit_line(&s, "call function_" + expr->function->name);
@@ -280,7 +283,7 @@ std::stringstream emit_expression(bound_expr_var* expr) {
     
     int size = expr->var->type->size;
     // int offset = expr->var->offset + 8;
-    int offset = expr->offset;
+    // int offset = expr->offset;
 
     emit_line(&s, "mov rax, [" + expr->get_address() + "]");
     clear_register(&s, RAX, size);

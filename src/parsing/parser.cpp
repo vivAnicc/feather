@@ -11,7 +11,6 @@
 #include "stmt_expression.cpp"
 #include "stmt_block.cpp"
 #include "stmt_var_dec.cpp"
-#include "stmt_var_ass.cpp"
 #include "stmt_label.cpp"
 #include "stmt_goto.cpp"
 #include "stmt_if.cpp"
@@ -109,10 +108,6 @@ class parser {
                 return parse_goto_statement();
             case token_type::kw_if:
                 return parse_if_statement();
-            // case token_type::ident:
-            //     if (peek(1).value().type == token_type::equals)
-            //         return parse_var_ass_statement();
-            //     return parse_expression_statement();
             case token_type::kw_function:
                 return parse_function_statement();
             case token_type::kw_return:
@@ -261,15 +256,6 @@ class parser {
             token semi = consume(token_type::semi);
 
             return new stmt_var_dec(var, ident, equals, expr, semi);
-        }
-
-        stmt_var_ass* parse_var_ass_statement() {
-            token ident = consume(token_type::ident);
-            token equals = consume(token_type::equals);
-            auto expr = parse_expression();
-            token semi = consume(token_type::semi);
-
-            return new stmt_var_ass(ident, equals, expr, semi);
         }
 
         stmt_label* parse_label_statement() {

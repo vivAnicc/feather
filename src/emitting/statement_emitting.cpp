@@ -39,9 +39,6 @@ std::stringstream emit_statement(T* t) {
     else if (auto stmt = dynamic_cast<bound_stmt_var_dec*>(t)) {
         return emit_statement(stmt);
     }
-    else if (auto stmt = dynamic_cast<bound_stmt_var_ass*>(t)) {
-        return emit_statement(stmt);
-    }
     else if (auto stmt = dynamic_cast<bound_stmt_label*>(t)) {
         return emit_statement(stmt);
     }
@@ -113,18 +110,19 @@ std::stringstream emit_statement(bound_stmt_block* stmt) {
     return s;
 }
 
-std::stringstream emit_block_start() {
+std::stringstream emit_block_start(int var_sizes) {
     std::stringstream s;
 
     emit_line(&s, "push " + STACK_COUNTER);
     emit_line(&s, "mov " + STACK_COUNTER + ", " + STACK_POINTER);
+    emit_line(&s, "sub " + STACK_POINTER + ", " + std::to_string(var_sizes));
 
     return s;
 }
 
 template<>
 std::stringstream emit_statement(lowered_block_start* stmt) {
-    return emit_block_start();
+    return emit_block_start(stmt->scope->offset());
 }
 
 std::stringstream emit_block_end() {
@@ -146,25 +144,13 @@ std::stringstream emit_statement(bound_stmt_var_dec* stmt) {
     std::stringstream s;
 
     int size = stmt->var->type->size;
+    auto rax = get_register(RAX, size);
+    auto ptr = get_size(size);
     
     s = emit_expression(stmt->expr);
     clear_register(&s, RAX, size);
-    emit_line(&s, "push rax");
-
-    return s;
-}
-
-template<>
-std::stringstream emit_statement(bound_stmt_var_ass* stmt) {
-    std::stringstream s;
-
-    int size = stmt->var->type->size;
-    // int offset = stmt->var->offset + 8;
-    int offset = stmt->offset;
-
-    s = emit_expression(stmt->expr);
-    clear_register(&s, RAX, size);
-    emit_line(&s, "mov [" + STACK_COUNTER + " - " + std::to_string(offset) + "], rax");
+    emit_line(&s, "mov " + ptr + " [rbp - " + std::to_string(stmt->var->offset + size) + "], " + rax);
+    // emit_line(&s, "push rax");
 
     return s;
 }

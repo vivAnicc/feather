@@ -8,7 +8,6 @@
 #include "bound_stmt_expr.cpp"
 #include "bound_stmt_block.cpp"
 #include "bound_stmt_var_dec.cpp"
-#include "bound_stmt_var_ass.cpp"
 #include "bound_stmt_label.cpp"
 #include "bound_stmt_goto.cpp"
 #include "bound_stmt_if.cpp"
@@ -46,9 +45,6 @@ bound_statement* bind_statement(T* t) {
         return bind_statement(stmt);
     }
     else if (auto stmt = dynamic_cast<stmt_var_dec*>(t)) {
-        return bind_statement(stmt);
-    }
-    else if (auto stmt = dynamic_cast<stmt_var_ass*>(t)) {
         return bind_statement(stmt);
     }
     else if (auto stmt = dynamic_cast<stmt_label*>(t)) {
@@ -89,8 +85,7 @@ bound_statement* bind_statement(stmt_block* stmt) {
         statements.push_back(bind_statement(s));
     }
 
-    auto scope = current_scope;
-    scope_leave();
+    auto scope = scope_leave();
 
     return new bound_stmt_block(statements, scope);
 }
@@ -118,7 +113,7 @@ template<>
 bound_statement* bind_statement(stmt_var_dec* stmt) {
     std::string name = std::get<std::string>(stmt->ident.value.value());
     auto expr = bind_expression(stmt->expr);
-    auto var = new variable_symbol(name, expr->type, current_scope->var_offset);
+    auto var = new variable_symbol(name, expr->type, current_scope->var_size);
 
     auto result = current_scope->try_declare(var);
     if (!result) {
@@ -126,26 +121,6 @@ bound_statement* bind_statement(stmt_var_dec* stmt) {
     }
 
     return new bound_stmt_var_dec(var, expr);
-}
-
-template<>
-bound_statement* bind_statement(stmt_var_ass* stmt) {
-    auto name = std::get<std::string>(stmt->ident.value.value());
-    auto var = current_scope->get_variable(name);
-    int offset = current_scope->get_offset(var) + 8;
-    // if (var->is_param()) {
-    //     offset = (var->offset * 8) + 8;
-    // }
-    // else {
-    //     offset = current_scope->get_offset(var) + 8;
-    // }
-    auto expr = bind_expression(stmt->expr);
-
-    if (var && var->type == expr->type) {
-        return new bound_stmt_var_ass(var, expr, offset);
-    }
-
-    return statement_error();
 }
 
 template<>
@@ -193,7 +168,8 @@ bound_statement* bind_statement(stmt_function* stmt) {
     }
 
     // address for return
-    current_scope->var_offset += 8;
+    // current_scope->var_offset += 8;
+    get_temp_var(8);
     
     std::string name = std::get<std::string>(stmt->ident.value.value());
 
@@ -201,6 +177,7 @@ bound_statement* bind_statement(stmt_function* stmt) {
     auto function = new function_symbol(name, body->type, v);
     current_scope->parent->try_declare(function);
 
+    remove_temp_var(8);
     scope_leave();
 
     return new bound_stmt_function(function, v, body);

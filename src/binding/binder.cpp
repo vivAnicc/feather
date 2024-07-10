@@ -13,7 +13,6 @@ class binder {
         bound_stmt_block* bind() {
             std::vector<bound_statement*> result;
 
-            auto scope = current_scope;
             scope_enter();
             // current_scope->var_offset += 8;
 
@@ -22,7 +21,7 @@ class binder {
                 result.push_back(res);
             }
 
-            scope_leave();
+            auto scope = scope_leave();
             auto block = new bound_stmt_block(result, scope);
 
             return block;

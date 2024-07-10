@@ -2,25 +2,27 @@ global _start
 _start:
 push rbp
 mov rbp, rsp
+sub rsp, 4
 jmp function_end1
 function_test:
 push rbp
 mov rbp, rsp
+sub rsp, 12
 mov eax, 43
 and rax, -1
-push rax
-lea rax, [rbp - 8]
-push rax
+mov dword [rbp - 4], eax
+lea rax, [rbp - 4]
+mov qword [rbp - 12], rax
 mov eax, 30
-pop rcx
-mov [rcx], rax
-mov rax, [rbp - -16]
+mov rcx, qword [rbp - 12]
+mov dword [rcx], eax
+mov rax, [rbp - -12]
 and rax, -1
-push rax
-mov rax, [rbp - 8]
+mov qword [rbp - 12], rax
+mov rax, [rbp - 4]
 and rax, -1
 neg eax
-pop rcx
+mov rcx, qword [rbp - 12]
 add eax, ecx
 jmp end_label2
 end_label2:
@@ -30,8 +32,8 @@ ret
 function_end1:
 mov eax, 1
 and rax, -1
-push rax
-mov rax, [rbp - 8]
+mov dword [rbp - 4], eax
+mov rax, [rbp - 4]
 and rax, -1
 and rax, -1
 push rax
@@ -114,6 +116,7 @@ cmp ax, 0
 je if_end0
 push rbp
 mov rbp, rsp
+sub rsp, 0
 mov ax, 97
 ; print start
 push 10

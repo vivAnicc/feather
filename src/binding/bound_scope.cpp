@@ -8,9 +8,11 @@ class bound_scope {
         std::map<std::string, variable_symbol*> variables;
         std::map<std::string, function_symbol*> functions;
         bound_scope* parent;
-        int var_offset;
+        int var_size = 0;
+        int temp_size = 0;
+        int max_temp_size = 0;
 
-        bound_scope(bound_scope* parent = nullptr) : parent (parent), var_offset (0) {}
+        bound_scope(bound_scope* parent = nullptr) : parent (parent) {}
 
         variable_symbol* get_variable(std::string name) {
             if (variables.count(name) == 1)
@@ -33,7 +35,7 @@ class bound_scope {
                 return false;
             }
             
-            var_offset += 8;
+            var_size += v->type->size;
             variables[v->name] = v;
             return true;
         }
@@ -87,6 +89,10 @@ class bound_scope {
             return false;
         }
 
+        int offset() {
+            return var_size + max_temp_size;
+        }
+
         int get_offset(variable_symbol* var) {
             bool owned = is_owned(var);
 
@@ -97,22 +103,28 @@ class bound_scope {
                 return -1;
 
             if (parent->is_owned(var)) {
-                int parent_offset = parent->var_offset - parent->get_offset(var) + 8;
+                int parent_offset = parent->offset() - parent->get_offset(var) + var->type->size;
                 return -parent_offset;
             }
             else {
-                int parent_offset = parent->get_offset(var) + parent->var_offset;
+                int parent_offset = parent->get_offset(var) + parent->offset();
                 return -parent_offset;
             }
         }
 
         int get_total_offset() {
-            int offset = var_offset;
+            int tot = offset();
 
             if (parent)
-                offset += parent->get_total_offset();
+                tot += parent->get_total_offset();
 
-            return offset;
+            return tot;
+        }
+
+        void add_temp(int s) {
+            temp_size += s;
+            if (temp_size > max_temp_size)
+                max_temp_size = temp_size;
         }
 };
 
@@ -122,6 +134,17 @@ void scope_enter() {
     current_scope = new bound_scope(current_scope);
 }
 
-void scope_leave() {
-    current_scope = current_scope->parent;
+bound_scope* scope_leave() {
+    auto current = current_scope;
+    current_scope = current->parent;
+    return current;
+}
+
+int get_temp_var(int size) {
+    current_scope->add_temp(size);
+    return current_scope->temp_size;
+}
+
+void remove_temp_var(int size) {
+    current_scope->temp_size -= size;
 }
