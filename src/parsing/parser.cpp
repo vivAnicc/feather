@@ -24,6 +24,11 @@
 #include "term_var.cpp"
 #include "term_statement.cpp"
 #include "term_call.cpp"
+#include "type_builtin.cpp"
+#include "type_deref.cpp"
+#include "type_expr.cpp"
+#include "type_ptr.cpp"
+#include "type_ident.cpp"
 #include "binary_operator.cpp"
 #include "unary_operator.cpp"
 
@@ -157,11 +162,11 @@ class parser {
         std::optional<term*> parse_term() {
             switch (peek().value().type)
             {
-            case token_type::kw_bool:
-            case token_type::kw_int:
-            case token_type::kw_char:
-            case token_type::kw_void:
-                return new term_type(next());
+            // case token_type::kw_bool:
+            // case token_type::kw_int:
+            // case token_type::kw_char:
+            // case token_type::kw_void:
+            //     return new term_type(next());
             case token_type::kw_true:
             case token_type::kw_false:
             case token_type::num_lit:
@@ -172,13 +177,16 @@ class parser {
             case token_type::ident:
                 if (peek(1).value().type == token_type::paren_open)
                     return parse_term_call();
-                return new term_var(next());
+                break;
             case token_type::brace_open:
                 return parse_term_stmt();
-                
-            default:
-                return std::nullopt;
             }
+
+            if (auto type = parse_type()) {
+                return new term_type(type.value());
+            }
+
+            return std::nullopt;
         }
 
         term_paren* parse_term_paren() {
@@ -294,7 +302,7 @@ class parser {
             std::vector<node_parameter> v;
 
             while (peek().value().type != token_type::paren_close) {
-                token type = next();
+                type* type = parse_type().value();
                 token ident = consume(token_type::ident);
 
                 if (peek().value().type == token_type::comma) {
@@ -327,5 +335,52 @@ class parser {
             token semi = consume(token_type::semi);
 
             return new stmt_return(kw, expr, semi);
+        }
+
+        std::optional<type*> parse_type(std::optional<type*> start_value = std::nullopt) {
+            switch (peek().value().type)
+            {
+            case token_type::kw_bool:
+            case token_type::kw_int:
+            case token_type::kw_char:
+            case token_type::kw_void:
+                return parse_type(new type_builtin(next()));
+            case token_type::ident:
+                return parse_type(new type_ident(next()));
+            case token_type::kw_type:
+                return parse_type(parse_type_expr());
+            case token_type::dot:
+                if (start_value.has_value())
+                    return parse_type(parse_type_deref(start_value.value()));
+                else return std::nullopt;
+            case token_type::star:
+                if (start_value.has_value())
+                    return parse_type(parse_type_ptr(start_value.value()));
+                else return std::nullopt;
+            default:
+                return start_value;
+            }
+        }
+
+        type_expr* parse_type_expr() {
+            auto kw = consume(token_type::kw_type);
+            auto open = consume(token_type::paren_open);
+            auto expr = parse_expression();
+            auto close = consume(token_type::paren_close);
+
+            return new type_expr(kw, open, expr, close);
+        }
+
+        type_deref* parse_type_deref(type* base) {
+            auto dot = consume(token_type::dot);
+            auto ident = consume(token_type::ident);
+
+            return new type_deref(base, dot, ident);
+        }
+
+        type_ptr* parse_type_ptr(type* base) {
+            auto star = consume(token_type::star);
+
+            return new type_ptr(base, star);
         }
 };

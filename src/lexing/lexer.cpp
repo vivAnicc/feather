@@ -99,6 +99,9 @@ class lexer {
                 case ',':
                     add_token(token(token_type::comma, std::string{ next() }));
                     continue;
+                case '.':
+                    add_token(token(token_type::dot, std::string{ next() }));
+                    continue;
                 case '=':
                     if (peek() == '=')
                         add_token(token(token_type::ee, std::string { next() + "" + next() }));
@@ -182,6 +185,9 @@ class lexer {
                     }
                     else if (string == "return") {
                         add_token(token(token_type::kw_return, string));
+                    }
+                    else if (string == "type") {
+                        add_token(token(token_type::kw_type, string));
                     }
                     else if (string == "int") {
                         add_token(token(token_type::kw_int, string, "int"));

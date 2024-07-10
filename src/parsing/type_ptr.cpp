@@ -1,20 +1,19 @@
 #pragma once
-#include "term.cpp"
 #include "type.cpp"
 #include "../token.cpp"
 
-class term_type : public term {
+class type_ptr : public type {
     public:
-        type* t;
+        type* base;
+        token star;
 
-        term_type(type* t) : t (t) {}
+        type_ptr(type* base, token star) : base (base), star (star) {}
 
         virtual std::vector<node*> get_children() {
-            return { t };
+            return { base };
         }
-
     protected:
         virtual std::vector<token> list_tokens() {
-            return {};
+            return { star };
         }
 };

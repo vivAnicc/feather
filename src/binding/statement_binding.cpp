@@ -2,7 +2,7 @@
 #include <typeinfo>
 #include "binder.cpp"
 #include "bound_expression.cpp"
-#include "expression_binding.cpp"
+#include "type_binding.cpp"
 #include "bound_scope.cpp"
 #include "bound_stmt_exit.cpp"
 #include "bound_stmt_expr.cpp"
@@ -163,8 +163,7 @@ bound_statement* bind_statement(stmt_function* stmt) {
     for (int i = 0; i < stmt->params.size(); i++) {
         auto param = stmt->params[i];
         std::string name = std::get<std::string>(param.ident.value.value());
-        std::string type_name = std::get<std::string>(param.type.value.value());
-        type_symbol* type = string_to_type(type_name).value();
+        type_symbol* type = bind_type(param.t);
         v[i] = new parameter_symbol(name, type, i);
         current_scope->try_declare(v[i]);
     }

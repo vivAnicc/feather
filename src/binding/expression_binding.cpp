@@ -2,6 +2,7 @@
 #include <variant>
 #include <optional>
 #include "binder.cpp"
+#include "type_binding.cpp"
 #include "bound_expression.cpp"
 #include "bound_expr_term.cpp"
 #include "bound_expr_error.cpp"
@@ -129,12 +130,9 @@ bound_expression* bind_expression(term_paren* expr) {
 
 template<>
 bound_expression* bind_expression(term_type* expr) {
-    auto type_name = std::get<std::string>(expr->type.value.value());
-    auto type = string_to_type(type_name);
+    auto type = bind_type(expr->t);
 
-    if (type.has_value()) {
-        return new bound_expr_type(type.value());
-    }
+    return new bound_expr_type(type);
     
     return new bound_expr_error;
 }

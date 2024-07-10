@@ -2,16 +2,17 @@
 #include <optional>
 #include "statement.cpp"
 #include "expression.cpp"
+#include "type.cpp"
 #include "../token.cpp"
 
 class node_parameter {
     public:
-        token type;
+        type* t;
         token ident;
         std::optional<token> comma;
 
-        node_parameter(token type, token ident, std::optional<token> comma = std::nullopt)
-            : type (type), ident (ident), comma (comma) {}
+        node_parameter(type* t, token ident, std::optional<token> comma = std::nullopt)
+            : t (t), ident (ident), comma (comma) {}
 };
 
 class stmt_function : public statement {
@@ -28,7 +29,12 @@ class stmt_function : public statement {
             : function (function), ident (ident), open (open), params (params), close (close), body (body), semi (semi) {}
         
         virtual std::vector<node*> get_children() {
-            return { body };
+            std::vector<node*> v;
+            for (const auto& param : params) {
+                v.push_back(param.t);
+            }
+            v.push_back(body);
+            return v;
         }
 
     protected:
@@ -40,7 +46,6 @@ class stmt_function : public statement {
             };
 
             for (const auto& param : params) {
-                v.push_back(param.type);
                 v.push_back(param.ident);
                 if (param.comma.has_value()) {
                     v.push_back(param.comma.value());
