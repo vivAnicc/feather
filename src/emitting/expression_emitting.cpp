@@ -292,7 +292,7 @@ std::stringstream emit_expression(bound_expr_call* expr) {
 
 template<>
 std::stringstream emit_expression(bound_expr_error* expr) {
-    std::cerr << "Error expression encountered!" << std::endl;
+    std::cerr << "Error expression encountered! (emitting)" << std::endl;
     return std::stringstream();
 }
 

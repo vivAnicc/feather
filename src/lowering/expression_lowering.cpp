@@ -12,7 +12,7 @@ bound_expression* lower_expression(T* t) {
         return new bound_expr_error;
     }
     if (auto stmt = dynamic_cast<bound_expr_error*>(t)) {
-        std::cerr << "Error expression ecountered!" << std::endl;
+        std::cerr << "Error expression encountered! (lowering)" << std::endl;
         return { stmt };
         // return lower_expression(stmt);
     }
