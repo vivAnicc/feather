@@ -158,7 +158,8 @@ bound_statement* bind_statement(stmt_function* stmt) {
     std::vector<parameter_symbol*> v;
     v.resize(stmt->params.size());
 
-    scope_enter();
+    auto scope = current_scope;
+    current_scope = new bound_scope;
 
     for (int i = 0; i < stmt->params.size(); i++) {
         auto param = stmt->params[i];
@@ -176,10 +177,10 @@ bound_statement* bind_statement(stmt_function* stmt) {
 
     auto body = bind_expression(stmt->body);
     auto function = new function_symbol(name, body->type, v);
-    current_scope->parent->try_declare(function);
+    scope->try_declare(function);
 
     remove_temp_var(8);
-    scope_leave();
+    current_scope = scope;
 
     return new bound_stmt_function(function, v, body);
 }
