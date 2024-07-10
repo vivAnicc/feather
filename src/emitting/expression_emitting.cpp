@@ -279,7 +279,7 @@ std::stringstream emit_expression(bound_expr_call* expr) {
     emit_line(&s, "sub " + STACK_POINTER + ", " + std::to_string(total_size));
     // emit_line(&s, "mov rbp, rsp");
 
-    emit_line(&s, "call function_" + expr->function->name);
+    emit_line(&s, "call " + function_label(expr->function));
     // emit_line(&s, "add " + STACK_POINTER + ", " + std::to_string(8 * expr->params.size()));
     // emit_block_end();
 

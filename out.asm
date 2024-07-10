@@ -6,7 +6,7 @@ mov rbp, rsp
 sub rsp, 20
 ;; 19bound_stmt_function
 jmp function_end1
-function_test:
+function_test_int:
 ;; 19lowered_block_start
 push rbp
 mov rbp, rsp
@@ -42,7 +42,7 @@ mov eax, dword [rbp - 4]
 mov dword [rsp - 4], eax
 mov rbp, rsp
 sub rsp, 4
-call function_test
+call function_test_int
 mov rsp, rbp
 pop rbp
 ; print start
@@ -83,7 +83,7 @@ mov eax, 2
 mov dword [rsp - 4], eax
 mov rbp, rsp
 sub rsp, 4
-call function_test
+call function_test_int
 mov rsp, rbp
 pop rbp
 ; print start

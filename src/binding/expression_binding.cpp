@@ -67,41 +67,6 @@ bound_stmt_return* find_return(bound_node* n) {
 }
 
 template<>
-bound_expression* bind_expression(expr_binary* expr) {
-    auto left = bind_expression(expr->left);
-
-    if (is_error(left)) {
-        return new bound_expr_error;
-    }
-
-    if (expr->op == binary_operator::assign) {
-        if (!dynamic_cast<bound_lvalue*>(left)) {
-            std::cerr << "Invalid lvalue" << std::endl;
-            return new bound_expr_error;
-        }
-    }
-
-    // Count for push
-    // current_scope->var_offset += 8;
-    int t = get_temp_var(8);
-    auto right = bind_expression(expr->right);
-    remove_temp_var(8);
-    // current_scope->var_offset -= 8;
-
-    if (is_error(right)) {
-        return new bound_expr_error;
-    }
-
-    auto op = bind_binary_operator(expr->op, left->type, right->type);
-
-    if (!op.has_value()) {
-        return new bound_expr_error;
-    }
-
-    return new bound_expr_binary(left, right, op.value(), t, current_scope);
-}
-
-template<>
 bound_expression* bind_expression(expr_unary* expr) {
     auto operand = bind_expression(expr->operand);
 
@@ -129,15 +94,6 @@ bound_expression* bind_expression(term_paren* expr) {
 }
 
 template<>
-bound_expression* bind_expression(term_type* expr) {
-    auto type = bind_type(expr->t);
-
-    return new bound_expr_type(type);
-    
-    return new bound_expr_error;
-}
-
-template<>
 bound_expression* bind_expression(term_var* expr) {
     auto name = std::get<std::string>(expr->ident.value.value());
     auto var = current_scope->get_variable(name);
@@ -154,6 +110,54 @@ bound_expression* bind_expression(term_var* expr) {
     }
 
     return new bound_expr_error;
+}
+
+template<>
+bound_expression* bind_expression(term_type* expr) {
+    auto type = bind_type(expr->t);
+    if (type == NULL) {
+        return bind_expression(type_to_var(expr));
+    }
+
+    return new bound_expr_type(type);
+}
+
+template<>
+bound_expression* bind_expression(expr_binary* expr) {
+    auto left = bind_expression(expr->left);
+
+    if (is_error(left)) {
+        return new bound_expr_error;
+    }
+
+    if (expr->op == binary_operator::assign) {
+        if (auto t = try_get<term_type>(expr->left)) {
+            left = bind_expression(type_to_var(t));
+        }
+        if (!dynamic_cast<bound_lvalue*>(left)) {
+            std::cerr << "Invalid lvalue" << std::endl;
+            return new bound_expr_error;
+        }
+    }
+
+    // Count for push
+    // current_scope->var_offset += 8;
+    int t = get_temp_var(8);
+    auto right = bind_expression(expr->right);
+    remove_temp_var(8);
+    // current_scope->var_offset -= 8;
+
+    if (is_error(right)) {
+        return new bound_expr_error;
+    }
+
+    auto op = bind_binary_operator(expr->op, left->type, right->type);
+
+    if (!op.has_value()) {
+        return new bound_expr_error;
+    }
+
+    return new bound_expr_binary(left, right, op.value(), t, current_scope);
 }
 
 template<>

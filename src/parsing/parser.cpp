@@ -32,6 +32,10 @@
 #include "binary_operator.cpp"
 #include "unary_operator.cpp"
 
+term_var* type_to_var(term_type* t) {
+    return new term_var(((type_ident*)t->t)->type);
+}
+
 class parser {
     std::vector<token> tokens;
     int idx = 0;
@@ -302,15 +306,15 @@ class parser {
             std::vector<node_parameter> v;
 
             while (peek().value().type != token_type::paren_close) {
-                type* type = parse_type().value();
+                auto type = parse_type();
                 token ident = consume(token_type::ident);
 
                 if (peek().value().type == token_type::comma) {
                     token comma = next();
-                    v.push_back(node_parameter(type, ident, comma));
+                    v.push_back(node_parameter(type.value(), ident, comma));
                 }
                 else {
-                    v.push_back(node_parameter(type, ident));
+                    v.push_back(node_parameter(type.value(), ident));
                 }
             }
 
@@ -338,6 +342,17 @@ class parser {
         }
 
         std::optional<type*> parse_type(std::optional<type*> start_value = std::nullopt) {
+            if (start_value.has_value()) {
+                switch (peek().value().type) 
+                {
+                case token_type::dot:
+                    return parse_type(parse_type_deref(start_value.value()));
+                case token_type::star:
+                    return parse_type(parse_type_ptr(start_value.value()));
+                default:
+                    return start_value;
+                }
+            }
             switch (peek().value().type)
             {
             case token_type::kw_bool:
@@ -349,16 +364,8 @@ class parser {
                 return parse_type(new type_ident(next()));
             case token_type::kw_type:
                 return parse_type(parse_type_expr());
-            case token_type::dot:
-                if (start_value.has_value())
-                    return parse_type(parse_type_deref(start_value.value()));
-                else return std::nullopt;
-            case token_type::star:
-                if (start_value.has_value())
-                    return parse_type(parse_type_ptr(start_value.value()));
-                else return std::nullopt;
             default:
-                return start_value;
+                return std::nullopt;
             }
         }
 

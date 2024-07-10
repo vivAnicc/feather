@@ -207,7 +207,7 @@ template<>
 std::stringstream emit_statement(bound_stmt_function* stmt) {
     std::stringstream s;
 
-    std::string label = "function_" + stmt->function->name;
+    std::string label = function_label(stmt->function);
     auto label_name = get_label("function_end");
     auto label_end = new bound_stmt_label(label_name);
     auto gt = new bound_stmt_goto(label_name);
