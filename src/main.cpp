@@ -9,21 +9,46 @@
 #include "binding/binder.cpp"
 #include "lowering/lowerer.cpp"
 
-void print_node(node* node) {
+template<class N>
+void print_node(N* node, std::string indent = "", bool last = true, bool first_node = true) {
+    // ├──
+    // │  
+    // └──
+
+    std::string marker = "├──";
+    if (last)
+        marker = "└──";
+    
+    std::cout << indent;
+    if (!first_node)
+        std::cout << marker;
+
     std::cout << typeid(*node).name() << std::endl;
 
-    for (const auto& child : node->get_children()) {
-        print_node(child);
+    if (!first_node) {
+        if (last)
+            indent += "   ";
+        else
+            indent += "│  ";
+    }
+
+    std::vector<N*> children = node->get_children();
+    N* last_child = nullptr;
+    if (children.size() > 0)
+        last_child = children[children.size() - 1];
+
+    for (const auto& child : children) {
+        print_node(child, indent, child == last_child, false);
     }
 }
 
-void print_node(bound_node* node) {
-    std::cout << typeid(*node).name() << std::endl;
+// void print_node(bound_node* node) {
+//     std::cout << typeid(*node).name() << std::endl;
 
-    for (const auto& child : node->get_children()) {
-        print_node(child);
-    }
-}
+//     for (const auto& child : node->get_children()) {
+//         print_node(child);
+//     }
+// }
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
@@ -55,7 +80,7 @@ int main(int argc, char* argv[]) {
     auto statements = parser.parse();
 
     // for (const auto& stmt : statements) {
-    //     print_node(stmt);
+    //     print_node((node*)stmt);
     // }
 
     // std::cout << std::endl;
