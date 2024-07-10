@@ -103,7 +103,8 @@ class bound_scope {
                 return -1;
 
             if (parent->is_owned(var)) {
-                int parent_offset = parent->offset() - parent->get_offset(var) + var->type->size;
+                // int parent_offset = parent->offset() - parent->get_offset(var) + var->type->size;
+                int parent_offset = parent->offset() - parent->get_offset(var) + 8;
                 return -parent_offset;
             }
             else {

@@ -92,7 +92,9 @@ bound_statement* bind_statement(stmt_block* stmt) {
 
 template<>
 bound_statement* bind_statement(stmt_print* stmt) {
+    int t = get_temp_var(8);
     auto expr = bind_expression(stmt->expr);
+    remove_temp_var(8);
 
     function_symbol* fun = &function_print_num;
     if (expr->type == &type_bool)
@@ -100,7 +102,7 @@ bound_statement* bind_statement(stmt_print* stmt) {
     else if (expr->type == &type_char)
         fun = &function_print_char;
     
-    auto call_expr = new bound_expr_call(fun, { expr });
+    auto call_expr = new bound_expr_call(fun, { expr }, t, current_scope);
     return new bound_stmt_expr(call_expr);
 }
 

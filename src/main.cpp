@@ -93,8 +93,7 @@ int main(int argc, char* argv[]) {
         file << emitted;
     }
 
-    system("nasm -felf64 out.asm");
-    system("ld -o out out.o");
+    system("nasm -felf64 out.asm && ld -o out out.o");
 
     return 0;
 }

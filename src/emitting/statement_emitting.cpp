@@ -27,38 +27,51 @@ std::stringstream emit_statement(T* t) {
         std::cerr << "Null node encountered!" << std::endl;
         return std::stringstream();
     }
+    std::stringstream s;
+    s << ";; " << typeid(*t).name() << std::endl;
     if (auto stmt = dynamic_cast<bound_stmt_expr*>(t)) {
-        return emit_statement(stmt);
+        s << emit_statement(stmt).str();
+        return s;
     }
     else if (auto stmt = dynamic_cast<bound_stmt_exit*>(t)) {
-        return emit_statement(stmt);
+        s << emit_statement(stmt).str();
+        return s;
     }
     else if (auto stmt = dynamic_cast<bound_stmt_block*>(t)) {
-        return emit_statement(stmt);
+        s << emit_statement(stmt).str();
+        return s;
     }
     else if (auto stmt = dynamic_cast<bound_stmt_var_dec*>(t)) {
-        return emit_statement(stmt);
+        s << emit_statement(stmt).str();
+        return s;
     }
     else if (auto stmt = dynamic_cast<bound_stmt_label*>(t)) {
-        return emit_statement(stmt);
+        s << emit_statement(stmt).str();
+        return s;
     }
     else if (auto stmt = dynamic_cast<bound_stmt_goto*>(t)) {
-        return emit_statement(stmt);
+        s << emit_statement(stmt).str();
+        return s;
     }
     else if (auto stmt = dynamic_cast<bound_stmt_gotoif*>(t)) {
-        return emit_statement(stmt);
+        s << emit_statement(stmt).str();
+        return s;
     }
     else if (auto stmt = dynamic_cast<bound_stmt_function*>(t)) {
-        return emit_statement(stmt);
+        s << emit_statement(stmt).str();
+        return s;
     }
     else if (auto stmt = dynamic_cast<bound_stmt_return*>(t)) {
-        return emit_statement(stmt);
+        s << emit_statement(stmt).str();
+        return s;
     }
     else if (auto stmt = dynamic_cast<lowered_block_end*>(t)) {
-        return emit_statement(stmt);
+        s << emit_statement(stmt).str();
+        return s;
     }
     else if (auto stmt = dynamic_cast<lowered_block_start*>(t)) {
-        return emit_statement(stmt);
+        s << emit_statement(stmt).str();
+        return s;
     }
     else {
         std::cerr << "Bound statement not recognized!    " << typeid(*t).name() << std::endl;
@@ -148,7 +161,7 @@ std::stringstream emit_statement(bound_stmt_var_dec* stmt) {
     auto ptr = get_size(size);
     
     s = emit_expression(stmt->expr);
-    clear_register(&s, RAX, size);
+    // clear_register(&s, RAX, size);
     emit_line(&s, "mov " + ptr + " [rbp - " + std::to_string(stmt->var->offset + size) + "], " + rax);
     // emit_line(&s, "push rax");
 

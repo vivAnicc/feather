@@ -187,9 +187,12 @@ bound_expression* bind_expression(term_call* expr) {
     std::string name = std::get<std::string>(expr->ident.value.value());
     auto fun = current_scope->get_function(name);
     std::vector<bound_expression*> v;
+
+    int t = get_temp_var(8);
     for (const auto& param : expr->params) {
         v.push_back(bind_expression(param.expr));
     }
+    remove_temp_var(8);
 
-    return new bound_expr_call(fun, v);
+    return new bound_expr_call(fun, v, t, current_scope);
 }

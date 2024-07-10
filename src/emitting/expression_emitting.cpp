@@ -46,6 +46,16 @@ std::stringstream emit_expression(T* t) {
     }
 }
 
+void emit_set_temp(std::stringstream* s, bound_scope* scope, int temp, int size, std::string val) {
+    auto ptr = get_size(size);
+    emit_line(s, "mov " + ptr + " [rbp - " + std::to_string(scope->var_size + temp) + "], " + val);
+}
+
+void emit_get_temp(std::stringstream* s, bound_scope* scope, int temp, int size, std::string val) {
+    auto ptr = get_size(size);
+    emit_line(s, "mov " + val + ", " + ptr + " [rbp - " + std::to_string(scope->var_size + temp) + "]");
+}
+
 template<>
 std::stringstream emit_expression(bound_expr_term* expr) {
     std::stringstream s;
@@ -83,9 +93,9 @@ std::stringstream emit_expression(bound_expr_binary* expr) {
     }
 
     // emit_line(&s, "push rax");
-    emit_line(&s, "mov qword [rbp - " + std::to_string(expr->scope->var_size + expr->temp) + "], rax");
+    emit_set_temp(&s, expr->scope, expr->temp, 8, "rax");
     s << emit_expression(expr->right).str();
-    emit_line(&s, "mov rcx, qword [rbp - " + std::to_string(expr->scope->var_size + expr->temp) + "]");
+    emit_get_temp(&s, expr->scope, expr->temp, 8, "rcx");
     // emit_line(&s, "pop rcx");
     expr->op.emit(&s);
 
@@ -248,16 +258,34 @@ std::stringstream emit_expression(bound_expr_call* expr) {
     std::stringstream s;
 
     // s = emit_block_start();
+    int total_size = 0;
+    // emit_set_temp(&s, expr->scope, expr->temp, 8, STACK_COUNTER);
+    emit_line(&s, "push " + STACK_COUNTER);
+
     for (const auto& param : expr->params) {
         int size = param->type->size;
+        auto rax = get_register(RAX, size);
+        auto ptr = get_size(size);
+
         s << emit_expression(param).str();
-        clear_register(&s, RAX, size);
-        // TODO: dont push
-        emit_line(&s, "push rax");
+        // clear_register(&s, RAX, size);
+        emit_line(&s, "mov " + ptr + " [rsp - " + std::to_string(total_size + size) + "], " + rax);
+        // emit_line(&s, "push rax");
+
+        total_size += size;
     }
+
+    emit_line(&s, "mov " + STACK_COUNTER + ", " + STACK_POINTER);
+    emit_line(&s, "sub " + STACK_POINTER + ", " + std::to_string(total_size));
+    // emit_line(&s, "mov rbp, rsp");
+
     emit_line(&s, "call function_" + expr->function->name);
     // emit_line(&s, "add " + STACK_POINTER + ", " + std::to_string(8 * expr->params.size()));
     // emit_block_end();
+
+    // emit_get_temp(&s, expr->scope, expr->temp, 8, STACK_COUNTER);
+    emit_line(&s, "mov " + STACK_POINTER + ", " + STACK_COUNTER);
+    emit_line(&s, "pop " + STACK_COUNTER);
 
     return s;
 }
@@ -282,11 +310,13 @@ std::stringstream emit_expression(bound_expr_var* expr) {
     std::stringstream s;
     
     int size = expr->var->type->size;
+    auto rax = get_register(RAX, size);
+    auto ptr = get_size(size);
     // int offset = expr->var->offset + 8;
     // int offset = expr->offset;
 
-    emit_line(&s, "mov rax, [" + expr->get_address() + "]");
-    clear_register(&s, RAX, size);
+    emit_line(&s, "mov " + rax + ", " + ptr + " [" + expr->get_address() + "]");
+    // clear_register(&s, RAX, size);
 
     return s;
 }

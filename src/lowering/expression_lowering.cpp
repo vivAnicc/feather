@@ -71,5 +71,5 @@ bound_expression* lower_expression(bound_expr_call* expr) {
         v.push_back(lower_expression(e));
     }
 
-    return new bound_expr_call(expr->function, v);
+    return new bound_expr_call(expr->function, v, expr->temp, expr->scope);
 }
