@@ -35,6 +35,11 @@ ret
 function_end1:
 ;; 18bound_stmt_var_dec
 mov qword [rbp - 8], rax
+;; 15bound_stmt_expr
+lea rax, [rbp - 8]
+mov qword [rbp - 24], rax
+mov rcx, qword [rbp - 24]
+mov qword [rcx], rax
 ;; 18bound_stmt_var_dec
 mov eax, 1
 mov dword [rbp - 12], eax

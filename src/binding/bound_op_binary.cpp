@@ -245,14 +245,6 @@ auto valid_binary_operator_list = {
         }
     ),
     std::make_pair<binary_operator, std::vector<bound_op_binary>> (
-        binary_operator::assign,
-        {
-            bound_op_binary(binary_operator::assign, &type_int),
-            bound_op_binary(binary_operator::assign, &type_bool),
-            bound_op_binary(binary_operator::assign, &type_char),
-        }
-    ),
-    std::make_pair<binary_operator, std::vector<bound_op_binary>> (
         binary_operator::logic_and,
         {
             bound_op_binary(binary_operator::logic_and, &type_bool),
@@ -262,22 +254,6 @@ auto valid_binary_operator_list = {
         binary_operator::logic_or,
         {
             bound_op_binary(binary_operator::logic_or, &type_bool),
-        }
-    ),
-    std::make_pair<binary_operator, std::vector<bound_op_binary>> (
-        binary_operator::equals,
-        {
-            bound_op_binary(binary_operator::equals, &type_bool),
-            bound_op_binary(binary_operator::equals, &type_int, &type_bool),
-            bound_op_binary(binary_operator::equals, &type_char, &type_bool),
-        }
-    ),
-    std::make_pair<binary_operator, std::vector<bound_op_binary>> (
-        binary_operator::not_equals,
-        {
-            bound_op_binary(binary_operator::not_equals, &type_bool),
-            bound_op_binary(binary_operator::not_equals, &type_int, &type_bool),
-            bound_op_binary(binary_operator::not_equals, &type_char, &type_bool),
         }
     ),
     std::make_pair<binary_operator, std::vector<bound_op_binary>> (
@@ -308,6 +284,11 @@ auto valid_binary_operator_list = {
 std::map<binary_operator, std::vector<bound_op_binary>> valid_binary_operators (valid_binary_operator_list.begin(), valid_binary_operator_list.end());
 
 std::optional<bound_op_binary> bind_binary_operator(binary_operator op, type_symbol* left, type_symbol* right) {
+    if (op == binary_operator::assign || op == binary_operator::equals || op == binary_operator::not_equals) {
+        if (left == right)
+            return bound_op_binary(op, left);
+    }
+
     if (valid_binary_operators.count(op) != 1)
         return std::nullopt;
     
@@ -322,6 +303,15 @@ std::optional<bound_op_binary> bind_binary_operator(binary_operator op, type_sym
 }
 
 std::optional<bound_op_binary> bind_binary_operator(binary_operator op, type_symbol* left, type_symbol* right, type_symbol* result) {
+    if (op == binary_operator::assign) {
+        if (left == right && left == result)
+            return bound_op_binary(op, left);
+    }
+    if (op == binary_operator::equals || op == binary_operator::not_equals) {
+        if (left == right && result == &type_bool)
+            return bound_op_binary(op, left, result);
+    }
+
     if (valid_binary_operators.count(op) != 1)
         return std::nullopt;
     

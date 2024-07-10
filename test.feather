@@ -5,6 +5,7 @@ function test(int b) {
 };
 
 var b = int*;
+b = int*;
 var a = 1;
 var c = type(a - 1);
 print(test(a));
