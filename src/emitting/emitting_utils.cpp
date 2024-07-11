@@ -25,6 +25,7 @@ void emit_line(std::stringstream* stream, std::string line) {
 #define STACK_REGISTER RSP
 #define STACK_POINTER std::string("rsp")
 #define STACK_COUNTER std::string("rbp")
+#define HEAP_POINTER std::string("rbx")
 
 std::string get_register(int num, int size) {
     if (size > 8)
