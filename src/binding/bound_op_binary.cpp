@@ -25,26 +25,27 @@ class bound_op_binary {
             : bound_op_binary(op, type, type, type) {}
         
         // left is in RCX, right is in RAX
-        void emit(std::stringstream* s) {
+        void emit() {
             if (op == binary_operator::assign)
-                emit_assign(s);
+                emit_assign();
             else if (left == &type_int && right == &type_int)
-                emit_ints(s);
+                emit_ints();
             else if (left == &type_bool && right == &type_bool)
-                emit_bools(s);
+                emit_bools();
             else if (left == &type_char && right == &type_char)
-                emit_chars(s);
+                emit_chars();
         }
 
     private:
-        void emit_assign(std::stringstream* s) {
+        void emit_assign() {
             int size = right->size;
             auto rax = get_register(RAX, size);
             auto ptr = get_size(size);
 
-            emit_line(s, "mov " + ptr + " [rcx], " + rax);
+            emit_instr(opcode::mov, operation { ptr, &RCX, {}, {}, {} }, rax);
+            // emit_line(s, "mov " + ptr + " [rcx], " + rax);
         }
-        void emit_chars(std::stringstream* s) {
+        void emit_chars() {
             int op_size = left->size;
 
             auto rax = get_register(RAX, op_size);
@@ -56,29 +57,43 @@ class bound_op_binary {
             switch (op)
             {
             case binary_operator::equals:
-                emit_line(s, "cmp " + rcx + ", " + rax);
-                emit_line(s, "je " + label_true);
-                emit_line(s, "mov " + rax + ", 0");
-                emit_line(s, "jmp " + label_end);
-                emit_line(s, label_true + ":");
-                emit_line(s, "mov " + rax + ", 1");
-                emit_line(s, label_end + ":");
+                emit_instr(opcode::cmp, rcx, rax);
+                emit_instr(opcode::j, predicate::e, label_true);
+                emit_instr(opcode::mov, rax, 0);
+                emit_instr(opcode::jmp, label_end);
+                emit_label(label_true);
+                emit_instr(opcode::mov, rax, 1);
+                emit_label(label_end);
+                // emit_line(s, "cmp " + rcx + ", " + rax);
+                // emit_line(s, "je " + label_true);
+                // emit_line(s, "mov " + rax + ", 0");
+                // emit_line(s, "jmp " + label_end);
+                // emit_line(s, label_true + ":");
+                // emit_line(s, "mov " + rax + ", 1");
+                // emit_line(s, label_end + ":");
                 break;
             case binary_operator::not_equals:
-                emit_line(s, "cmp " + rcx + ", " + rax);
-                emit_line(s, "jne " + label_true);
-                emit_line(s, "mov " + rax + ", 0");
-                emit_line(s, "jmp " + label_end);
-                emit_line(s, label_true + ":");
-                emit_line(s, "mov " + rax + ", 1");
-                emit_line(s, label_end + ":");
+                emit_instr(opcode::cmp, rcx, rax);
+                emit_instr(opcode::j, predicate::ne, label_true);
+                emit_instr(opcode::mov, rax, 0);
+                emit_instr(opcode::jmp, label_end);
+                emit_label(label_true);
+                emit_instr(opcode::mov, rax, 1);
+                emit_label(label_end);
+                // emit_line(s, "cmp " + rcx + ", " + rax);
+                // emit_line(s, "jne " + label_true);
+                // emit_line(s, "mov " + rax + ", 0");
+                // emit_line(s, "jmp " + label_end);
+                // emit_line(s, label_true + ":");
+                // emit_line(s, "mov " + rax + ", 1");
+                // emit_line(s, label_end + ":");
                 break;
             
             default:
                 break;
             }
         }
-        void emit_bools(std::stringstream* s) {
+        void emit_bools() {
             int op_size = left->size;
 
             auto rax = get_register(RAX, op_size);
@@ -90,35 +105,51 @@ class bound_op_binary {
             switch (op)
             {
             case binary_operator::equals:
-                emit_line(s, "cmp " + rcx + ", " + rax);
-                emit_line(s, "je " + label_true);
-                emit_line(s, "mov " + rax + ", 0");
-                emit_line(s, "jmp " + label_end);
-                emit_line(s, label_true + ":");
-                emit_line(s, "mov " + rax + ", 1");
-                emit_line(s, label_end + ":");
+                emit_instr(opcode::cmp, rcx, rax);
+                emit_instr(opcode::j, predicate::e, label_true);
+                emit_instr(opcode::mov, rax, 0);
+                emit_instr(opcode::jmp, label_end);
+                emit_label(label_true);
+                emit_instr(opcode::mov, rax, 1);
+                emit_label(label_end);
+                // emit_line(s, "cmp " + rcx + ", " + rax);
+                // emit_line(s, "je " + label_true);
+                // emit_line(s, "mov " + rax + ", 0");
+                // emit_line(s, "jmp " + label_end);
+                // emit_line(s, label_true + ":");
+                // emit_line(s, "mov " + rax + ", 1");
+                // emit_line(s, label_end + ":");
                 break;
             case binary_operator::not_equals:
-                emit_line(s, "cmp " + rcx + ", " + rax);
-                emit_line(s, "jne " + label_true);
-                emit_line(s, "mov " + rax + ", 0");
-                emit_line(s, "jmp " + label_end);
-                emit_line(s, label_true + ":");
-                emit_line(s, "mov " + rax + ", 1");
-                emit_line(s, label_end + ":");
+                emit_instr(opcode::cmp, rcx, rax);
+                emit_instr(opcode::j, predicate::ne, label_true);
+                emit_instr(opcode::mov, rax, 0);
+                emit_instr(opcode::jmp, label_end);
+                emit_label(label_true);
+                emit_instr(opcode::mov, rax, 1);
+                emit_label(label_end);
+                // emit_line(s, "cmp " + rcx + ", " + rax);
+                // emit_line(s, "jne " + label_true);
+                // emit_line(s, "mov " + rax + ", 0");
+                // emit_line(s, "jmp " + label_end);
+                // emit_line(s, label_true + ":");
+                // emit_line(s, "mov " + rax + ", 1");
+                // emit_line(s, label_end + ":");
                 break;
             case binary_operator::logic_or:
-                emit_line(s, "or " + rax + ", " + rcx);
+                emit_instr(opcode::or_, rax, rcx);
+                // emit_line(s, "or " + rax + ", " + rcx);
                 break;
             case binary_operator::logic_and:
-                emit_line(s, "and " + rax + ", " + rcx);
+                emit_instr(opcode::and_, rax, rcx);
+                // emit_line(s, "and " + rax + ", " + rcx);
                 break;
             
             default:
                 break;
             }
         }
-        void emit_ints(std::stringstream* s) {
+        void emit_ints() {
             int op_size = left->size;
 
             auto rax = get_register(RAX, op_size);
@@ -131,79 +162,132 @@ class bound_op_binary {
             switch (op)
             {
             case binary_operator::add:
-                emit_line(s, "add " + rax + ", " + rcx);
+                emit_instr(opcode::add, rax, rcx);
+                // emit_line(s, "add " + rax + ", " + rcx);
                 break;
             case binary_operator::sub:
-                emit_line(s, "sub " + rcx + ", " + rax);
-                emit_line(s, "mov " + rax + ", " + rcx);
+                emit_instr(opcode::sub, rcx, rax);
+                emit_instr(opcode::mov, rax, rcx);
+                // emit_line(s, "sub " + rcx + ", " + rax);
+                // emit_line(s, "mov " + rax + ", " + rcx);
                 break;
             case binary_operator::mul:
-                emit_line(s, "imul " + rcx);
+                emit_instr(opcode::imul, rcx);
+                // emit_line(s, "imul " + rcx);
                 break;
             case binary_operator::div:
-                emit_line(s, "xor " + rdx + ", " + rdx);
-                emit_line(s, "xchg " + rcx + ", " + rax);
-                emit_line(s, "idiv " + rcx);
+                emit_instr(opcode::xor_, rdx, rdx);
+                emit_instr(opcode::xchg, rcx, rax);
+                emit_instr(opcode::idiv, rcx);
+                // emit_line(s, "xor " + rdx + ", " + rdx);
+                // emit_line(s, "xchg " + rcx + ", " + rax);
+                // emit_line(s, "idiv " + rcx);
                 break;
             case binary_operator::mod:
-                emit_line(s, "xor " + rdx + ", " + rdx);
-                emit_line(s, "xchg " + rcx + ", " + rax);
-                emit_line(s, "idiv " + rcx);
-                emit_line(s, "mov " + rax + ", " + rdx);
+                emit_instr(opcode::xor_, rdx, rdx);
+                emit_instr(opcode::xchg, rcx, rax);
+                emit_instr(opcode::idiv, rcx);
+                emit_instr(opcode::mov, rax, rdx);
+                // emit_line(s, "xor " + rdx + ", " + rdx);
+                // emit_line(s, "xchg " + rcx + ", " + rax);
+                // emit_line(s, "idiv " + rcx);
+                // emit_line(s, "mov " + rax + ", " + rdx);
                 break;
             case binary_operator::equals:
-                emit_line(s, "cmp " + rcx + ", " + rax);
-                emit_line(s, "je " + label_true);
-                emit_line(s, "mov " + rax + ", 0");
-                emit_line(s, "jmp " + label_end);
-                emit_line(s, label_true + ":");
-                emit_line(s, "mov " + rax + ", 1");
-                emit_line(s, label_end + ":");
+                emit_instr(opcode::cmp, rcx, rax);
+                emit_instr(opcode::j, predicate::e, label_true);
+                emit_instr(opcode::mov, rax, 0);
+                emit_instr(opcode::jmp, label_end);
+                emit_label(label_true);
+                emit_instr(opcode::mov, rax, 1);
+                emit_label(label_end);
+                // emit_line(s, "cmp " + rcx + ", " + rax);
+                // emit_line(s, "je " + label_true);
+                // emit_line(s, "mov " + rax + ", 0");
+                // emit_line(s, "jmp " + label_end);
+                // emit_line(s, label_true + ":");
+                // emit_line(s, "mov " + rax + ", 1");
+                // emit_line(s, label_end + ":");
                 break;
             case binary_operator::not_equals:
-                emit_line(s, "cmp " + rcx + ", " + rax);
-                emit_line(s, "jne " + label_true);
-                emit_line(s, "mov " + rax + ", 0");
-                emit_line(s, "jmp " + label_end);
-                emit_line(s, label_true + ":");
-                emit_line(s, "mov " + rax + ", 1");
-                emit_line(s, label_end + ":");
+                emit_instr(opcode::cmp, rcx, rax);
+                emit_instr(opcode::j, predicate::ne, label_true);
+                emit_instr(opcode::mov, rax, 0);
+                emit_instr(opcode::jmp, label_end);
+                emit_label(label_true);
+                emit_instr(opcode::mov, rax, 1);
+                emit_label(label_end);
+                // emit_line(s, "cmp " + rcx + ", " + rax);
+                // emit_line(s, "jne " + label_true);
+                // emit_line(s, "mov " + rax + ", 0");
+                // emit_line(s, "jmp " + label_end);
+                // emit_line(s, label_true + ":");
+                // emit_line(s, "mov " + rax + ", 1");
+                // emit_line(s, label_end + ":");
                 break;
             case binary_operator::greater_than:
-                emit_line(s, "cmp " + rcx + ", " + rax);
-                emit_line(s, "jg " + label_true);
-                emit_line(s, "mov " + rax + ", 0");
-                emit_line(s, "jmp " + label_end);
-                emit_line(s, label_true + ":");
-                emit_line(s, "mov " + rax + ", 1");
-                emit_line(s, label_end + ":");
+                emit_instr(opcode::cmp, rcx, rax);
+                emit_instr(opcode::j, predicate::g, label_true);
+                emit_instr(opcode::mov, rax, 0);
+                emit_instr(opcode::jmp, label_end);
+                emit_label(label_true);
+                emit_instr(opcode::mov, rax, 1);
+                emit_label(label_end);
+                // emit_line(s, "cmp " + rcx + ", " + rax);
+                // emit_line(s, "jg " + label_true);
+                // emit_line(s, "mov " + rax + ", 0");
+                // emit_line(s, "jmp " + label_end);
+                // emit_line(s, label_true + ":");
+                // emit_line(s, "mov " + rax + ", 1");
+                // emit_line(s, label_end + ":");
                 break;
             case binary_operator::greater_equals:
-                emit_line(s, "cmp " + rcx + ", " + rax);
-                emit_line(s, "jge " + label_true);
-                emit_line(s, "mov " + rax + ", 0");
-                emit_line(s, "jmp " + label_end);
-                emit_line(s, label_true + ":");
-                emit_line(s, "mov " + rax + ", 1");
-                emit_line(s, label_end + ":");
+                emit_instr(opcode::cmp, rcx, rax);
+                emit_instr(opcode::j, predicate::ge, label_true);
+                emit_instr(opcode::mov, rax, 0);
+                emit_instr(opcode::jmp, label_end);
+                emit_label(label_true);
+                emit_instr(opcode::mov, rax, 1);
+                emit_label(label_end);
+                // emit_line(s, "cmp " + rcx + ", " + rax);
+                // emit_line(s, "jge " + label_true);
+                // emit_line(s, "mov " + rax + ", 0");
+                // emit_line(s, "jmp " + label_end);
+                // emit_line(s, label_true + ":");
+                // emit_line(s, "mov " + rax + ", 1");
+                // emit_line(s, label_end + ":");
                 break;
             case binary_operator::less_than:
-                emit_line(s, "cmp " + rcx + ", " + rax);
-                emit_line(s, "jl " + label_true);
-                emit_line(s, "mov " + rax + ", 0");
-                emit_line(s, "jmp " + label_end);
-                emit_line(s, label_true + ":");
-                emit_line(s, "mov " + rax + ", 1");
-                emit_line(s, label_end + ":");
+                emit_instr(opcode::cmp, rcx, rax);
+                emit_instr(opcode::j, predicate::l, label_true);
+                emit_instr(opcode::mov, rax, 0);
+                emit_instr(opcode::jmp, label_end);
+                emit_label(label_true);
+                emit_instr(opcode::mov, rax, 1);
+                emit_label(label_end);
+                // emit_line(s, "cmp " + rcx + ", " + rax);
+                // emit_line(s, "jl " + label_true);
+                // emit_line(s, "mov " + rax + ", 0");
+                // emit_line(s, "jmp " + label_end);
+                // emit_line(s, label_true + ":");
+                // emit_line(s, "mov " + rax + ", 1");
+                // emit_line(s, label_end + ":");
                 break;
             case binary_operator::less_equals:
-                emit_line(s, "cmp " + rcx + ", " + rax);
-                emit_line(s, "jle " + label_true);
-                emit_line(s, "mov " + rax + ", 0");
-                emit_line(s, "jmp " + label_end);
-                emit_line(s, label_true + ":");
-                emit_line(s, "mov " + rax + ", 1");
-                emit_line(s, label_end + ":");
+                emit_instr(opcode::cmp, rcx, rax);
+                emit_instr(opcode::j, predicate::le, label_true);
+                emit_instr(opcode::mov, rax, 0);
+                emit_instr(opcode::jmp, label_end);
+                emit_label(label_true);
+                emit_instr(opcode::mov, rax, 1);
+                emit_label(label_end);
+                // emit_line(s, "cmp " + rcx + ", " + rax);
+                // emit_line(s, "jle " + label_true);
+                // emit_line(s, "mov " + rax + ", 0");
+                // emit_line(s, "jmp " + label_end);
+                // emit_line(s, label_true + ":");
+                // emit_line(s, "mov " + rax + ", 1");
+                // emit_line(s, label_end + ":");
                 break;
             
             default:

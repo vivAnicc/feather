@@ -22,212 +22,212 @@ std::string consume_label() {
 }
 
 template<class T>
-std::stringstream emit_statement(T* t) {
+void emit_statement(T* t) {
     if (t == NULL) {
         std::cerr << "Null node encountered!" << std::endl;
-        return std::stringstream();
+        return;
     }
-    std::stringstream s;
-    s << ";; " << typeid(*t).name() << std::endl;
+    
+    emit_comment(typeid(*t).name());
+    // s << ";; " << typeid(*t).name() << std::endl;
     if (auto stmt = dynamic_cast<bound_stmt_expr*>(t)) {
-        s << emit_statement(stmt).str();
-        return s;
+        emit_statement(stmt);
+        return;
     }
     else if (auto stmt = dynamic_cast<bound_stmt_exit*>(t)) {
-        s << emit_statement(stmt).str();
-        return s;
+        emit_statement(stmt);
+        return;
     }
     else if (auto stmt = dynamic_cast<bound_stmt_block*>(t)) {
-        s << emit_statement(stmt).str();
-        return s;
+        emit_statement(stmt);
+        find_return;
     }
     else if (auto stmt = dynamic_cast<bound_stmt_var_dec*>(t)) {
-        s << emit_statement(stmt).str();
-        return s;
+        emit_statement(stmt);
+        return;
     }
     else if (auto stmt = dynamic_cast<bound_stmt_label*>(t)) {
-        s << emit_statement(stmt).str();
-        return s;
+        emit_statement(stmt);
+        return;
     }
     else if (auto stmt = dynamic_cast<bound_stmt_goto*>(t)) {
-        s << emit_statement(stmt).str();
-        return s;
+        emit_statement(stmt);
+        return;
     }
     else if (auto stmt = dynamic_cast<bound_stmt_gotoif*>(t)) {
-        s << emit_statement(stmt).str();
-        return s;
+        emit_statement(stmt);
+        return;
     }
     else if (auto stmt = dynamic_cast<bound_stmt_function*>(t)) {
-        s << emit_statement(stmt).str();
-        return s;
+        emit_statement(stmt);
+        return;
     }
     else if (auto stmt = dynamic_cast<bound_stmt_return*>(t)) {
-        s << emit_statement(stmt).str();
-        return s;
+        emit_statement(stmt);
+        return;
     }
     else if (auto stmt = dynamic_cast<lowered_block_end*>(t)) {
-        s << emit_statement(stmt).str();
-        return s;
+        emit_statement(stmt);
+        return;
     }
     else if (auto stmt = dynamic_cast<lowered_block_start*>(t)) {
-        s << emit_statement(stmt).str();
-        return s;
+        emit_statement(stmt);
+        return;
     }
     else {
         std::cerr << "Bound statement not recognized!    " << typeid(*t).name() << std::endl;
-        return std::stringstream();
+        return;
     }
 }
 
 template<>
-std::stringstream emit_statement(bound_stmt_expr* stmt) {
-    std::stringstream s;
-
+void emit_statement(bound_stmt_expr* stmt) {
     // the output goes into rax except if it is a pointer, but we dont use them you
-    s = emit_expression(stmt->expr);
+    emit_expression(stmt->expr);
     // emit_line(&s, "add rsp, " + std::to_string(stmt->expr->type.size));
 
-    return s;
+    return;
 }
 
 template<>
-std::stringstream emit_statement(bound_stmt_exit* stmt) {
-    std::stringstream s;
-
+void emit_statement(bound_stmt_exit* stmt) {
     int size = stmt->expr->type->size;
     auto rdi = get_register(RDI, size);
     auto rax = get_register(RAX, size);
 
-    s = emit_expression(stmt->expr);
-    emit_line(&s, "mov " + rdi + ", " + rax);
-    emit_line(&s, "mov rax, 60");
-    emit_line(&s, "syscall");
+    emit_expression(stmt->expr);
+    emit_instr(opcode::mov, rdi, rax);
+    emit_instr(opcode::mov, &RAX, 60);
+    emit_instr(opcode::syscall);
+    // emit_line(&s, "mov " + rdi + ", " + rax);
+    // emit_line(&s, "mov rax, 60");
+    // emit_line(&s, "syscall");
 
-    return s;
+    return;
 }
 
 template<>
-std::stringstream emit_statement(bound_stmt_block* stmt) {
-    std::stringstream s;
-
-    emit_line(&s, "push " + STACK_COUNTER);
-    emit_line(&s, "mov " + STACK_COUNTER + ", " + STACK_POINTER);
+void emit_statement(bound_stmt_block* stmt) {
+    emit_instr(opcode::push, STACK_COUNTER);
+    emit_instr(opcode::mov, STACK_COUNTER, STACK_POINTER);
+    // emit_line(&s, "push " + STACK_COUNTER);
+    // emit_line(&s, "mov " + STACK_COUNTER + ", " + STACK_POINTER);
     
     for (const auto& statement : stmt->statements) {
-        s << emit_statement(statement).str();
+        emit_statement(statement);
     }
 
-    emit_line(&s, "mov " + STACK_POINTER + ", " + STACK_COUNTER);
-    emit_line(&s, "pop " + STACK_COUNTER);
+    emit_instr(opcode::mov, STACK_POINTER, STACK_COUNTER);
+    emit_instr(opcode::pop, STACK_COUNTER);
+    // emit_line(&s, "mov " + STACK_POINTER + ", " + STACK_COUNTER);
+    // emit_line(&s, "pop " + STACK_COUNTER);
 
-    return s;
+    return;
 }
 
-std::stringstream emit_block_start(int var_sizes) {
-    std::stringstream s;
+void emit_block_start(int var_sizes) {
+    emit_instr(opcode::push, STACK_COUNTER);
+    emit_instr(opcode::mov, STACK_COUNTER, STACK_POINTER);
+    emit_instr(opcode::sub, STACK_POINTER, var_sizes);
+    // emit_line(&s, "push " + STACK_COUNTER);
+    // emit_line(&s, "mov " + STACK_COUNTER + ", " + STACK_POINTER);
+    // emit_line(&s, "sub " + STACK_POINTER + ", " + std::to_string(var_sizes));
 
-    emit_line(&s, "push " + STACK_COUNTER);
-    emit_line(&s, "mov " + STACK_COUNTER + ", " + STACK_POINTER);
-    emit_line(&s, "sub " + STACK_POINTER + ", " + std::to_string(var_sizes));
-
-    return s;
+    return;
 }
 
 template<>
-std::stringstream emit_statement(lowered_block_start* stmt) {
+void emit_statement(lowered_block_start* stmt) {
     return emit_block_start(stmt->scope->offset());
 }
 
-std::stringstream emit_block_end() {
-    std::stringstream s;
+void emit_block_end() {
+    emit_instr(opcode::mov, STACK_POINTER, STACK_COUNTER);
+    emit_instr(opcode::pop, STACK_COUNTER);
+    // emit_line(&s, "mov " + STACK_POINTER + ", " + STACK_COUNTER);
+    // emit_line(&s, "pop " + STACK_COUNTER);
 
-    emit_line(&s, "mov " + STACK_POINTER + ", " + STACK_COUNTER);
-    emit_line(&s, "pop " + STACK_COUNTER);
-
-    return s;
+    return;
 }
 
 template<>
-std::stringstream emit_statement(lowered_block_end* stmt) {
+void emit_statement(lowered_block_end* stmt) {
     return emit_block_end();
 }
 
 template<>
-std::stringstream emit_statement(bound_stmt_var_dec* stmt) {
-    std::stringstream s;
-
+void emit_statement(bound_stmt_var_dec* stmt) {
     int size = stmt->var->type->size;
     auto rax = get_register(RAX, size);
     auto ptr = get_size(size);
     
-    s = emit_expression(stmt->expr);
+    emit_expression(stmt->expr);
     // clear_register(&s, RAX, size);
-    emit_line(&s, "mov " + ptr + " [rbp - " + std::to_string(stmt->var->offset + size) + "], " + rax);
+    emit_instr(opcode::mov, operation { ptr, &RBP, {}, {}, stmt->var->offset + size }, rax);
+    // emit_line(&s, "mov " + ptr + " [rbp - " + std::to_string(stmt->var->offset + size) + "], " + rax);
     // emit_line(&s, "push rax");
 
-    return s;
+    return;
 }
 
 template<>
-std::stringstream emit_statement(bound_stmt_label* stmt) {
-    std::stringstream s;
+void emit_statement(bound_stmt_label* stmt) {
+    emit_label(stmt->name);
+    // emit_line(&s, stmt->name + ":");
 
-    emit_line(&s, stmt->name + ":");
-
-    return s;
+    return;
 }
 
 template<>
-std::stringstream emit_statement(bound_stmt_goto* stmt) {
-    std::stringstream s;
+void emit_statement(bound_stmt_goto* stmt) {
+    emit_instr(opcode::jmp, stmt->label);
+    // emit_line(&s, "jmp " + stmt->label);
 
-    emit_line(&s, "jmp " + stmt->label);
-
-    return s;
+    return;
 }
 
 template<>
-std::stringstream emit_statement(bound_stmt_gotoif* stmt) {
-    std::stringstream s;
-
+void emit_statement(bound_stmt_gotoif* stmt) {
     int size = stmt->expr->type->size;
     auto rax = get_register(RAX, size);
 
-    s = emit_expression(stmt->expr);
-    emit_line(&s, "cmp " + rax + ", 0");
+    emit_expression(stmt->expr);
+    emit_instr(opcode::cmp, rax, 0);
+    // emit_line(&s, "cmp " + rax + ", 0");
     if (stmt->comp)
-        emit_line(&s, "jne " + stmt->label);
+        emit_instr(opcode::j, predicate::ne, stmt->label);
+        // emit_line(&s, "jne " + stmt->label);
     else
-        emit_line(&s, "je " + stmt->label);
+        emit_instr(opcode::j, predicate::e, stmt->label);
+        // emit_line(&s, "je " + stmt->label);
 
-    return s;
+    return;
 }
 
 template<>
-std::stringstream emit_statement(bound_stmt_function* stmt) {
-    std::stringstream s;
-
+void emit_statement(bound_stmt_function* stmt) {
     std::string label = function_label(stmt->function);
     auto label_name = get_label("function_end");
     auto label_end = new bound_stmt_label(label_name);
     auto gt = new bound_stmt_goto(label_name);
 
-    s << emit_statement(gt).str();
-    emit_line(&s, label + ":");
-    s << emit_expression(stmt->body).str();
-    emit_line(&s, "ret");
-    s << emit_statement(label_end).str();
+    emit_statement(gt);
+    emit_label(label);
+    // emit_line(&s, label + ":");
+    emit_expression(stmt->body);
+    emit_instr(opcode::ret);
+    // emit_line(&s, "ret");
+    emit_statement(label_end);
 
-    return s;
+    return;
 }
 
 template<>
-std::stringstream emit_statement(bound_stmt_return* stmt) {
-    std::stringstream s;
-
-    s = emit_expression(stmt->expr);
+void emit_statement(bound_stmt_return* stmt) {
+    emit_expression(stmt->expr);
     regenerate_label();
-    emit_line(&s, "jmp " + current_label);
+    emit_instr(opcode::jmp, current_label);
+    // emit_line(&s, "jmp " + current_label);
 
-    return s;
+    return;
 }

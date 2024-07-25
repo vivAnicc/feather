@@ -1,7 +1,8 @@
 #pragma once
 #include <string>
+#include "../emitting/operand.cpp"
 
 class bound_lvalue {
     public:
-        virtual std::string get_address() = 0;
+        virtual operand get_address() = 0;
 };

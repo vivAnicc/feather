@@ -15,7 +15,9 @@ class bound_expr_var : public bound_expression, public bound_lvalue {
             return {};
         }
 
-        virtual std::string get_address() {
-            return STACK_COUNTER + " - " + std::to_string(scope->get_offset(var) + var->type->size);
+        virtual operand get_address() {
+            auto size = get_size(var->type->size);
+            return operand(operation { size, STACK_COUNTER, {}, {}, scope->get_offset(var) + size->size });
+            // return STACK_COUNTER + " - " + std::to_string(scope->get_offset(var) + var->type->size);
         }
 };

@@ -20,7 +20,7 @@ class bound_op_unary {
         bound_op_unary(unary_operator op, type_symbol* operand)
             : op (op), operand (operand), result (operand) {}
 
-        void emit(std::stringstream* s) {
+        void emit() {
             int size = operand->size;
             auto rax = get_register(RAX, size);
             auto rcx = get_register(RCX, size);
@@ -28,14 +28,20 @@ class bound_op_unary {
             switch (op)
             {
             case unary_operator::neg:
-                emit_line(s, "neg " + rax);
+                emit_instr(opcode::neg, rax);
+                // emit_line(s, "neg " + rax);
                 break;
             case unary_operator::logic_not:
-                emit_line(s, "cmp " + rax + ", 0");
-                emit_line(s, "mov " + rcx + ", 1");
-                emit_line(s, "cmovz " + rax + ", " + rcx);
-                emit_line(s, "mov " + rcx + ", 0");
-                emit_line(s, "cmovnz " + rax + ", " + rcx);
+                emit_instr(opcode::cmp, rax, 0);
+                emit_instr(opcode::mov, rcx, 1);
+                emit_instr(opcode::cmov, predicate::z, rax, rcx);
+                emit_instr(opcode::mov, rcx, 0);
+                emit_instr(opcode::cmov, predicate::nz, rax, rcx);
+                // emit_line(s, "cmp " + rax + ", 0");
+                // emit_line(s, "mov " + rcx + ", 1");
+                // emit_line(s, "cmovz " + rax + ", " + rcx);
+                // emit_line(s, "mov " + rcx + ", 0");
+                // emit_line(s, "cmovnz " + rax + ", " + rcx);
                 break;
             
             default:

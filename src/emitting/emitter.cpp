@@ -4,6 +4,7 @@
 #include "../parsing/parser.cpp"
 #include "statement_emitting.cpp"
 #include "emitting_utils.cpp"
+#include "assembly.cpp"
 
 class emitter {
     std::vector<bound_statement*> statements;
@@ -19,8 +20,10 @@ class emitter {
         
         for (const auto& stmt : statements) {
             // stream << stmt->emit_statement().str();
-            stream << emit_statement(stmt).str();
+            emit_statement(stmt);
         }
+
+        stream << _asm.all();
 
         return stream.str();
     }
