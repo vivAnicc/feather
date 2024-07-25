@@ -50,13 +50,13 @@ void emit_expression(T* t) {
 
 void emit_set_temp(bound_scope* scope, int temp, int size, operand_lit val) {
     auto ptr = get_size(size);
-    emit_instr(opcode::mov, operation{ptr, &RBP, {}, {}, scope->var_size + temp}, val);
+    emit_instr(opcode::mov, operation{ptr, &RBP, {}, {}, -(scope->var_size + temp) }, val);
     // emit_line(s, "mov " + ptr + " [rbp - " + std::to_string(scope->var_size + temp) + "], " + val);
 }
 
 void emit_get_temp(bound_scope* scope, int temp, int size, std::string val) {
     auto ptr = get_size(size);
-    emit_instr(opcode::mov, val, operation{ptr, &RBP, {}, {}, scope->var_size + temp});
+    emit_instr(opcode::mov, val, operation{ptr, &RBP, {}, {}, -(scope->var_size + temp) });
     // emit_line(s, "mov " + val + ", " + ptr + " [rbp - " + std::to_string(scope->var_size + temp) + "]");
 }
 
@@ -329,7 +329,7 @@ void emit_expression(bound_expr_call* expr) {
 
         emit_expression(param);
         // clear_register(&s, RAX, size);
-        emit_instr(opcode::mov, operation{ ptr, &RSP, {}, {}, total_size + size }, rax);
+        emit_instr(opcode::mov, operation{ ptr, &RSP, {}, {}, -(total_size + size) }, rax);
         // emit_line(&s, "mov " + ptr + " [rsp - " + std::to_string(total_size + size) + "], " + rax);
         // emit_line(&s, "push rax");
 
