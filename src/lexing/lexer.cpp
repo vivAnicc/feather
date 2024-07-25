@@ -189,6 +189,9 @@ class lexer {
                     else if (string == "type") {
                         add_token(token(token_type::kw_type, string));
                     }
+                    else if (string == "new") {
+                        add_token(token(token_type::kw_new, string));
+                    }
                     else if (string == "int") {
                         add_token(token(token_type::kw_int, string, "int"));
                     }

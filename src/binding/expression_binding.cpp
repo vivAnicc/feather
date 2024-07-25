@@ -115,9 +115,6 @@ bound_expression* bind_expression(term_var* expr) {
 template<>
 bound_expression* bind_expression(term_type* expr) {
     auto type = bind_type(expr->t);
-    if (type == NULL) {
-        return bind_expression(type_to_var(expr));
-    }
 
     return new bound_expr_type(type);
 }
@@ -131,9 +128,6 @@ bound_expression* bind_expression(expr_binary* expr) {
     }
 
     if (expr->op == binary_operator::assign) {
-        if (auto t = try_get<term_type>(expr->left)) {
-            left = bind_expression(type_to_var(t));
-        }
         if (!dynamic_cast<bound_lvalue*>(left)) {
             std::cerr << "Invalid lvalue" << std::endl;
             return new bound_expr_error;

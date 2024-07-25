@@ -32,10 +32,6 @@
 #include "binary_operator.cpp"
 #include "unary_operator.cpp"
 
-term_var* type_to_var(term_type* t) {
-    return new term_var(((type_ident*)t->t)->type);
-}
-
 class parser {
     std::vector<token> tokens;
     int idx = 0;
@@ -184,13 +180,21 @@ class parser {
                 break;
             case token_type::brace_open:
                 return parse_term_stmt();
+            case token_type::kw_new:
+                return parse_term_type();
             }
 
-            if (auto type = parse_type()) {
-                return new term_type(type.value());
-            }
+            // if (auto type = parse_type()) {
+            //     return new term_type(type.value());
+            // }
 
             return std::nullopt;
+        }
+
+        term_type* parse_term_type() {
+            auto kw = consume(token_type::kw_new);
+            auto t = parse_type();
+            return new term_type(kw, t.value());
         }
 
         term_paren* parse_term_paren() {

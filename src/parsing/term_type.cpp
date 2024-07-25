@@ -5,9 +5,10 @@
 
 class term_type : public term {
     public:
+        token kw;
         type* t;
 
-        term_type(type* t) : t (t) {}
+        term_type(token kw, type* t) : kw (kw), t (t) {}
 
         virtual std::vector<node*> get_children() {
             return { t };
@@ -15,6 +16,6 @@ class term_type : public term {
 
     protected:
         virtual std::vector<token> list_tokens() {
-            return {};
+            return { kw };
         }
 };
