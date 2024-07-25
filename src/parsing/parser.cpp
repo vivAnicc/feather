@@ -177,7 +177,7 @@ class parser {
             case token_type::ident:
                 if (peek(1).value().type == token_type::paren_open)
                     return parse_term_call();
-                break;
+                return new term_var(next());
             case token_type::brace_open:
                 return parse_term_stmt();
             case token_type::kw_new:
