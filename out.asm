@@ -13,19 +13,19 @@ mov rbp, rsp
 sub rsp, 12
 ; 18bound_stmt_var_dec
 mov eax, 43
-mov dword [rbp + 4], eax
+mov dword [rbp + -4], eax
 ; 15bound_stmt_expr
-lea rax, dword [rbp + 8]
-mov qword [rbp + 12], rax
+lea rax, dword [rbp + -4]
+mov qword [rbp + -12], rax
 mov eax, 30
-mov rcx, qword [rbp + 12]
+mov rcx, qword [rbp + -12]
 mov dword [rcx], eax
 ; 17bound_stmt_return
-mov eax, dword [rbp + -12]
-mov qword [rbp + 12], rax
-mov eax, dword [rbp + 8]
+mov eax, dword [rbp + 16]
+mov qword [rbp + -12], rax
+mov eax, dword [rbp + -4]
 neg eax
-mov rcx, qword [rbp + 12]
+mov rcx, qword [rbp + -12]
 add eax, ecx
 jmp end_label2
 end_label2:
@@ -34,21 +34,21 @@ pop rbp
 ret 
 function_end1:
 ; 18bound_stmt_var_dec
-mov qword [rbp + 8], rax
+mov qword [rbp + -8], rax
 ; 15bound_stmt_expr
-lea rax, qword [rbp + 8]
-mov qword [rbp + 24], rax
-mov rcx, qword [rbp + 24]
+lea rax, qword [rbp + -8]
+mov qword [rbp + -24], rax
+mov rcx, qword [rbp + -24]
 mov qword [rcx], rax
 ; 18bound_stmt_var_dec
 mov eax, 1
-mov dword [rbp + 12], eax
+mov dword [rbp + -12], eax
 ; 18bound_stmt_var_dec
-mov dword [rbp + 16], eax
+mov dword [rbp + -16], eax
 ; 15bound_stmt_expr
 push rbp
-mov eax, dword [rbp + 16]
-mov dword [rsp + 4], eax
+mov eax, dword [rbp + -12]
+mov dword [rsp + -4], eax
 mov rbp, rsp
 sub rsp, 4
 call function_test_int
@@ -67,6 +67,7 @@ print_loop5:
 xor edx, edx
 div r10d
 add edx, 48
+and rdx, -1
 push rdx
 add r9d, 8
 cmp eax, 0
@@ -82,12 +83,13 @@ mov rdi, 1
 xor rdx, rdx
 mov edx, r9d
 syscall 
+and r9, -1
 add rsp, r9
 ; print end
 ; 15bound_stmt_expr
 push rbp
 mov eax, 2
-mov dword [rsp + 4], eax
+mov dword [rsp + -4], eax
 mov rbp, rsp
 sub rsp, 4
 call function_test_int
@@ -106,6 +108,7 @@ print_loop8:
 xor edx, edx
 div r10d
 add edx, 48
+and rdx, -1
 push rdx
 add r9d, 8
 cmp eax, 0
@@ -121,6 +124,7 @@ mov rdi, 1
 xor rdx, rdx
 mov edx, r9d
 syscall 
+and r9, -1
 add rsp, r9
 ; print end
 ; 17bound_stmt_gotoif
@@ -140,6 +144,7 @@ sub rsp, 8
 mov ax, 97
 ; print_start
 push 10
+and rax, 65535
 push rax
 mov rsi, rsp
 mov rax, 1

@@ -8,9 +8,9 @@ class asm_size {
 };
 
 asm_size qword = asm_size{ "qword", 8 };
-asm_size dword = asm_size{ "dword", 8 };
-asm_size word = asm_size{ "word", 8 };
-asm_size byte = asm_size{ "byte", 8 };
+asm_size dword = asm_size{ "dword", 4 };
+asm_size word = asm_size{ "word", 2 };
+asm_size byte = asm_size{ "byte", 1 };
 
 asm_size* big_size(int s) {
     return new asm_size{ "TOO_BIG", s };

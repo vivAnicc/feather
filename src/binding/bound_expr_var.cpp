@@ -2,6 +2,8 @@
 #include "bound_expression.cpp"
 #include "../symbols/variable_symbol.cpp"
 #include "bound_lvalue.cpp"
+#include "bound_scope.cpp"
+#include "../emitting/emitting_utils.cpp"
 
 class bound_expr_var : public bound_expression, public bound_lvalue {
     public:

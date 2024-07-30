@@ -163,7 +163,7 @@ void emit_statement(bound_stmt_var_dec* stmt) {
     
     emit_expression(stmt->expr);
     // clear_register(&s, RAX, size);
-    emit_instr(opcode::mov, operation { ptr, &RBP, {}, {}, -(stmt->var->offset + size)https://youtu.be/8IzYyTz4-2w }, rax);
+    emit_instr(opcode::mov, operation { ptr, &RBP, {}, {}, -(stmt->var->offset + size) }, rax);
     // emit_line(&s, "mov " + ptr + " [rbp - " + std::to_string(stmt->var->offset + size) + "], " + rax);
     // emit_line(&s, "push rax");
 
